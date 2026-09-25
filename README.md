@@ -33,7 +33,7 @@ See [`poll.example.toml`](poll.example.toml) for a complete, commented example.
 
 | Section | Keys |
 |---|---|
-| `[poll]` | `slug` (a stable ID; changing it starts a new poll), `title`, `question`, `description` (the inclusion rule), `min_choices`, `max_choices`, `opens_at`/`closes_at` (optional, must include a UTC offset), `results_visibility` (`live` or `after_close`), `option_noun`, `accent_color`, `theme` (`auto`, `light` or `dark`) |
+| `[poll]` | `slug` (a stable ID; changing it starts a new poll), `title`, `question`, `description` (the inclusion rule), `min_choices`, `max_choices`, `opens_at`/`closes_at` (optional, must include a UTC offset), `results_visibility` (`live` or `after_close`), `option_noun`, `accent_color`, `theme` (`auto`, `light` or `dark`; this is the default, and visitors can switch in the header), `social_image` (a link-preview card, see below) |
 | `[operator]` | `name`, `contact`, `retention`, `disclaimer`. These appear on the privacy page. |
 | `[suggestions]` | `enabled`, `allowed_hosts` (default `["github.com"]`) |
 | `[[options]]` | `slug`, `name`, `url` (https), `description`, `active` |
@@ -45,6 +45,17 @@ On startup the config is synced into the database:
 - Voting is accepted only when the status is `open` **and** the current time is inside the configured window, so the poll closes on time even if nobody is watching.
 
 Any line containing `REVIEW` marks an unresolved decision. `pollctl check` lists these lines, and `pollctl status open` refuses to run while any remain (pass `--force` to override).
+
+### Link previews on X and other social sites
+
+When the poll URL is posted, X, LinkedIn, Slack and others show a large preview card built from the page's Open Graph and Twitter Card tags. XPoll writes those tags automatically. To include an image, generate one from your config:
+
+```bash
+uv run --project ~/github/XPoll --with playwright python ~/github/XPoll/scripts/social_image.py \
+  --config poll.toml --out social.png
+```
+
+It produces a 1200×630 PNG with the title, question, options and address, then set `social_image = "social.png"` and restart. The script uses your installed Google Chrome, or the Playwright browser if Chrome isn't there. Platforms cache cards, so check yours before posting, for example with the preview in the X post composer.
 
 ### Environment (`.env`)
 

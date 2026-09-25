@@ -13,7 +13,8 @@ max_choices = 3
 results_visibility = "live"             # or "after_close"
 option_noun = "editor"                  # used in UI copy: "Missing an editor?"
 accent_color = "#2563eb"
-theme = "auto"                          # "auto" follows the device, or "light" / "dark"
+theme = "auto"                          # default theme; visitors can switch light/dark in the header
+# social_image = "social.png"           # 1200x630 PNG/JPEG link-preview card, relative to this file
 
 [operator]
 name = "Your Name"

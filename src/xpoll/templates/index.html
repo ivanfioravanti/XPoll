@@ -29,7 +29,7 @@
       {% endfor %}
     </ul>
   </fieldset>
-  <div class="turnstile" data-turnstile data-sitekey="{{ site_key }}" data-action="vote" data-theme="{{ poll.theme }}"></div>
+  <div class="turnstile" data-turnstile data-sitekey="{{ site_key }}" data-action="vote"></div>
   <p class="form-error" id="ballot-error" role="alert" aria-live="assertive"></p>
   <div class="ballot-bar">
     <div class="meter" aria-hidden="true">{% for _ in range(max_c) %}<span class="slot"></span>{% endfor %}</div>
@@ -75,7 +75,7 @@
            placeholder="https://github.com/owner/repo">
     <label for="suggest-notes">Notes <span class="optional">optional</span></label>
     <textarea id="suggest-notes" name="notes" maxlength="500" rows="3"></textarea>
-    <div class="turnstile" data-turnstile data-sitekey="{{ site_key }}" data-action="suggest" data-theme="{{ poll.theme }}"></div>
+    <div class="turnstile" data-turnstile data-sitekey="{{ site_key }}" data-action="suggest"></div>
     <p class="form-error" id="suggest-error" role="alert" aria-live="assertive"></p>
     <p class="form-success" id="suggest-success" role="status" aria-live="polite"></p>
     <button type="submit" id="suggest-submit" disabled>Send suggestion</button>

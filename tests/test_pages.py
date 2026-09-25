@@ -129,7 +129,7 @@ def test_theme_css_uses_configured_accent(make_app):
 
 
 def test_static_assets_served(client):
-    assert 'rel="icon" href="/static/favicon.svg"' in client.get("/").text
+    assert 'rel="icon" href="/static/favicon.svg?v=' in client.get("/").text
     assert client.get("/static/favicon.svg").status_code == 200
     assert client.get("/static/app.js").status_code == 200
     assert client.get("/static/styles.css").status_code == 200
@@ -175,4 +175,4 @@ def test_forced_dark_theme(make_app):
     html = TestClient(app, base_url=BASE_URL).get("/").text
     assert '<html lang="en" data-theme="dark" data-base="">' in html
     assert '<meta name="color-scheme" content="dark">' in html
-    assert 'data-action="vote" data-theme="dark"' in html
+    assert 'data-action="vote"' in html

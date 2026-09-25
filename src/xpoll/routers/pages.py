@@ -3,10 +3,11 @@ from importlib import resources
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request
-from fastapi.responses import HTMLResponse, Response
+from fastapi.responses import FileResponse, HTMLResponse, Response
 from fastapi.templating import Jinja2Templates
 
 from xpoll import db
+from xpoll.assets import SHORT
 from xpoll.context import AppContext, get_conn, get_ctx
 from xpoll.services.ballots import has_voted
 
@@ -35,7 +36,12 @@ def _base_context(request: Request, ctx: AppContext, conn: sqlite3.Connection) -
 
 def _render(request: Request, ctx: AppContext, name: str, context: dict) -> HTMLResponse:
     context.setdefault("page", name.removesuffix(".html"))
-    context["base"] = ctx.settings.base_path
+    context["base"] = base = ctx.settings.base_path
+    versions = ctx.asset_versions
+    context["asset"] = lambda name: f"{base}/static/{name}?v={versions.get(name, '0')}"
+    context["theme_url"] = f"{base}/theme.css?v={ctx.config.poll.accent_color.lstrip('#').lower()}"
+    context["public_url"] = ctx.settings.app_base_url.rstrip("/")
+    context["social_image"] = ctx.social_image
     response = templates.TemplateResponse(request, name, context)
     response.headers["Cache-Control"] = "no-store"
     ctx.identity.ensure_cookie(request, response)
@@ -66,7 +72,19 @@ def privacy(request: Request, ctx: Ctx, conn: Conn):
     return _render(request, ctx, "privacy.html", context)
 
 
+@router.get("/social-image")
+def social_image(ctx: Ctx) -> Response:
+    image = ctx.social_image
+    if image is None:
+        return Response(status_code=404)
+    return FileResponse(
+        image.path,
+        media_type=image.media_type,
+        headers={"Cache-Control": "public, max-age=3600"},
+    )
+
+
 @router.get("/theme.css")
 def theme(ctx: Ctx) -> Response:
     css = f":root {{ --accent: {ctx.config.poll.accent_color}; }}\n"
-    return Response(css, media_type="text/css", headers={"Cache-Control": "public, max-age=300"})
+    return Response(css, media_type="text/css", headers={"Cache-Control": SHORT})

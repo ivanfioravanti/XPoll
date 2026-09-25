@@ -5,26 +5,50 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>{% block title %}{{ poll.title }}{% endblock %}</title>
   <meta name="description" content="{{ poll.question }}">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="{{ poll.title }}">
   <meta property="og:title" content="{{ poll.title }}">
   <meta property="og:description" content="{{ poll.question }}">
+  <meta property="og:url" content="{{ public_url }}/">
+  {% if social_image %}
+  <meta property="og:image" content="{{ public_url }}/social-image">
+  <meta property="og:image:type" content="{{ social_image.media_type }}">
+  {% if social_image.width %}
+  <meta property="og:image:width" content="{{ social_image.width }}">
+  <meta property="og:image:height" content="{{ social_image.height }}">
+  {% endif %}
+  <meta property="og:image:alt" content="{{ poll.title }}: {{ poll.question }}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="{{ public_url }}/social-image">
+  <meta name="twitter:image:alt" content="{{ poll.title }}: {{ poll.question }}">
+  {% else %}
+  <meta name="twitter:card" content="summary">
+  {% endif %}
+  <meta name="twitter:title" content="{{ poll.title }}">
+  <meta name="twitter:description" content="{{ poll.question }}">
   <meta name="color-scheme" content="{{ 'light dark' if poll.theme == 'auto' else poll.theme }}">
-  <link rel="icon" href="{{ base }}/static/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="{{ base }}/static/styles.css">
-  <link rel="stylesheet" href="{{ base }}/theme.css">
-  <script src="{{ base }}/static/app.js" defer></script>
+  <script src="{{ asset("theme.js") }}"></script>
+  <link rel="icon" href="{{ asset("favicon.svg") }}" type="image/svg+xml">
+  <link rel="stylesheet" href="{{ asset("styles.css") }}">
+  <link rel="stylesheet" href="{{ theme_url }}">
+  <script src="{{ asset("app.js") }}" defer></script>
 </head>
 <body class="page-{{ page }}">
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header">
     <div class="container header-inner">
       <a class="brand" href="{{ base }}/">
-        <img src="{{ base }}/static/favicon.svg" alt="" width="24" height="24">
+        <img src="{{ asset("favicon.svg") }}" alt="" width="24" height="24">
         <span class="brand-text">{{ poll.title }}</span>
       </a>
       <nav class="site-nav" aria-label="Poll">
         <a href="{{ base }}/"{% if page == "index" %} aria-current="page"{% endif %}>Vote</a>
         <a href="{{ base }}/results"{% if page == "results" %} aria-current="page"{% endif %}>Results</a>
         <a href="{{ base }}/privacy"{% if page == "privacy" %} aria-current="page"{% endif %}>Privacy</a>
+        <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch color theme" hidden>
+          <svg class="icon-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a8.5 8.5 0 1 0 10.7 10.7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+        </button>
       </nav>
     </div>
   </header>

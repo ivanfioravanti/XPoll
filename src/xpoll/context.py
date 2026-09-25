@@ -1,6 +1,6 @@
 import sqlite3
 from collections.abc import Callable, Iterator
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 
 from fastapi import Request
@@ -12,6 +12,7 @@ from xpoll.poll_config import PollConfig
 from xpoll.ratelimit import RateLimiter
 from xpoll.services.polls import VotingState, voting_state
 from xpoll.services.results import ResultsCache, Snapshot, compute_results
+from xpoll.social import SocialImage
 from xpoll.turnstile import TurnstileVerifier
 
 
@@ -26,6 +27,8 @@ class AppContext:
     suggestion_limiter: RateLimiter
     results: ResultsCache
     now: Callable[[], datetime]
+    social_image: SocialImage | None = None
+    asset_versions: dict[str, str] = field(default_factory=dict)
 
     def state(self, conn: sqlite3.Connection) -> VotingState:
         return voting_state(db.get_poll(conn, self.poll_id), self.now())

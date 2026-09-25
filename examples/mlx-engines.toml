@@ -15,6 +15,7 @@ results_visibility = "live"
 option_noun = "engine"
 accent_color = "#2563eb"
 theme = "dark"
+social_image = "social.png"             # link-preview card, next to this file
 
 [operator]
 name = "Ivan Fioravanti"

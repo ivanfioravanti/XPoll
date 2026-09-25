@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  :root { --accent: {{ accent }}; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1200px; height: 630px; }
+  body {
+    position: relative;
+    overflow: hidden;
+    padding: 64px 72px 56px;
+    background:
+      radial-gradient(900px 520px at 100% 0%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%),
+      #0b0d11;
+    color: #eceef2;
+    font-family: system-ui, -apple-system, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    flex-direction: column;
+  }
+  .eyebrow {
+    display: flex; align-items: center; gap: 14px;
+    font: 700 20px/1 ui-monospace, "SF Mono", Menlo, monospace;
+    letter-spacing: .14em; text-transform: uppercase; color: #9aa2ae;
+  }
+  .dot { width: 12px; height: 12px; border-radius: 50%; background: #4ade80;
+         box-shadow: 0 0 0 6px rgb(74 222 128 / 18%); }
+  h1 {
+    margin-top: 26px;
+    max-width: 900px;
+    font-size: {{ title_size }}px; font-weight: 800; line-height: .98; letter-spacing: -.04em;
+    text-wrap: balance;
+  }
+  .question { margin-top: 20px; font-size: 30px; font-weight: 500; color: #c4c9d2; }
+  .chips { margin-top: auto; display: flex; flex-wrap: wrap; gap: 10px; max-height: 104px; overflow: hidden; }
+  .chip {
+    padding: 9px 16px; border-radius: 999px;
+    border: 1.5px solid #2a2f39; background: #14171d; color: #d3d8e0;
+    font: 600 19px/1 ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  .chip.more { border-color: color-mix(in srgb, var(--accent) 60%, #2a2f39); color: #fff; }
+  .footer {
+    margin-top: 30px; padding-top: 24px; border-top: 1.5px solid #222732;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .url { display: flex; align-items: center; gap: 14px; font: 600 24px/1 ui-monospace, "SF Mono", Menlo, monospace; color: #eceef2; }
+  .mark { width: 40px; height: 40px; border-radius: 10px; background: var(--accent); display: grid; place-items: center; }
+  .cta {
+    padding: 14px 26px; border-radius: 14px; background: var(--accent); color: #fff;
+    font-size: 24px; font-weight: 700; letter-spacing: -.01em;
+  }
+</style>
+</head>
+<body>
+  <div class="eyebrow"><span class="dot"></span>{{ eyebrow }}</div>
+  <h1>{{ title }}</h1>
+  <p class="question">{{ question }}</p>
+  <div class="chips">
+    {% for name in shown %}<span class="chip">{{ name }}</span>{% endfor %}
+    {% if hidden_count %}<span class="chip more">+{{ hidden_count }} more</span>{% endif %}
+  </div>
+  <div class="footer">
+    <div class="url">
+      <span class="mark"><svg viewBox="0 0 32 32" width="26" height="26"><rect x="7" y="17" width="4" height="8" rx="1" fill="#fff"/><rect x="14" y="11" width="4" height="14" rx="1" fill="#fff"/><rect x="21" y="7" width="4" height="18" rx="1" fill="#fff"/></svg></span>
+      {{ display_url }}
+    </div>
+    <div class="cta">{{ cta }}</div>
+  </div>
+</body>
+</html>

@@ -43,7 +43,9 @@ def test_pages_and_assets_live_under_prefix(pclient):
     html = response.text
     assert response.status_code == 200
     assert f'data-base="{PREFIX}"' in html
-    for link in ("/static/styles.css", "/static/app.js", "/theme.css", "/results", "/privacy"):
+    for link in ("/static/styles.css?v=", "/static/app.js?v=", "/theme.css?v="):
+        assert f'"{PREFIX}{link}' in html
+    for link in ("/results", "/privacy"):
         assert f'"{PREFIX}{link}"' in html
     assert 'href="/"' not in html
     assert pclient.get(f"{PREFIX}/static/app.js").status_code == 200

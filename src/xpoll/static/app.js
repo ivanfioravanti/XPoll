@@ -9,6 +9,41 @@
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 
+  // --- theme ----------------------------------------------------------------
+  const root = document.documentElement;
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
+
+  function effectiveTheme() {
+    const theme = root.dataset.theme;
+    if (theme === "light" || theme === "dark") return theme;
+    return prefersDark.matches ? "dark" : "light";
+  }
+
+  function setupThemeToggle() {
+    const button = $("#theme-toggle");
+    if (!button) return;
+    const label = () => {
+      const next = effectiveTheme() === "dark" ? "light" : "dark";
+      button.setAttribute("aria-label", `Switch to ${next} theme`);
+      button.title = `Switch to ${next} theme`;
+    };
+    button.addEventListener("click", () => {
+      const next = effectiveTheme() === "dark" ? "light" : "dark";
+      root.dataset.theme = next;
+      const meta = document.querySelector('meta[name="color-scheme"]');
+      if (meta) meta.content = next;
+      try {
+        localStorage.setItem("xpoll-theme", next);
+      } catch (_) {
+        /* private mode: the choice lasts for this page only */
+      }
+      label();
+    });
+    prefersDark.addEventListener("change", label);
+    label();
+    button.hidden = false;
+  }
+
   // --- Turnstile ------------------------------------------------------------
   const widgets = new Map(); // container -> {id, token, onChange}
 
@@ -38,7 +73,7 @@
       w.id = window.turnstile.render(container, {
         sitekey: container.dataset.sitekey,
         action: container.dataset.action,
-        theme: container.dataset.theme || "auto",
+        theme: effectiveTheme(),
         callback: setToken,
         "expired-callback": () => setToken(null),
         "error-callback": () => setToken(null),
@@ -289,6 +324,7 @@
 
   document.addEventListener("DOMContentLoaded", () => {
     localizeTimes();
+    setupThemeToggle();
     setupBallot();
     setupSuggestions();
     startLiveResults();

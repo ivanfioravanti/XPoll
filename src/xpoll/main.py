@@ -2,13 +2,14 @@ import logging
 from collections.abc import Callable
 from datetime import UTC, datetime
 from importlib import resources
+from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, RedirectResponse
-from fastapi.staticfiles import StaticFiles
 
 from xpoll import db
+from xpoll.assets import VersionedStaticFiles, asset_versions
 from xpoll.config import Settings, get_settings
 from xpoll.context import AppContext
 from xpoll.identity import Identity
@@ -17,6 +18,7 @@ from xpoll.ratelimit import RateLimiter
 from xpoll.routers import api, pages
 from xpoll.security import AccessLogMiddleware, SecurityMiddleware
 from xpoll.services.results import ResultsCache
+from xpoll.social import load_social_image
 from xpoll.turnstile import CloudflareTurnstile, TurnstileVerifier
 
 logger = logging.getLogger("xpoll")
@@ -49,6 +51,7 @@ def create_app(
             check_claims=not settings.uses_turnstile_test_keys,
         )
 
+    static_dir = Path(str(resources.files("xpoll") / "static"))
     app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
     app.state.ctx = AppContext(
         settings=settings,
@@ -66,6 +69,8 @@ def create_app(
         suggestion_limiter=RateLimiter(5, 3600),
         results=ResultsCache(ttl=2.0),
         now=now,
+        asset_versions=asset_versions(static_dir),
+        social_image=load_social_image(config.poll.social_image, settings.poll_config.parent),
     )
 
     @app.exception_handler(RequestValidationError)
@@ -79,8 +84,7 @@ def create_app(
     app.add_api_route("/healthz", _healthz)
     app.include_router(api.router)
     app.include_router(pages.router)
-    static_dir = resources.files("xpoll") / "static"
-    app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
+    app.mount("/static", VersionedStaticFiles(directory=str(static_dir)), name="static")
 
     root = app
     if settings.base_path:

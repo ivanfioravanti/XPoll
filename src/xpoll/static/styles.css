@@ -224,6 +224,49 @@ h2 {
   background: var(--surface-2);
 }
 
+.theme-toggle {
+  display: inline-grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  min-height: 0;
+  margin-left: 0.25rem;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+}
+
+.theme-toggle:hover {
+  color: var(--ink);
+  background: var(--surface-2);
+}
+
+.theme-toggle[hidden] {
+  display: none;
+}
+
+/* Show the icon of the theme you would switch to. */
+.theme-toggle .icon-sun,
+:root[data-theme="dark"] .theme-toggle .icon-moon {
+  display: none;
+}
+
+:root[data-theme="dark"] .theme-toggle .icon-sun {
+  display: block;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="auto"] .theme-toggle .icon-sun {
+    display: block;
+  }
+
+  :root[data-theme="auto"] .theme-toggle .icon-moon {
+    display: none;
+  }
+}
+
 .site-footer {
   margin-top: 4rem;
   padding-block: 1.5rem 2.5rem;

@@ -52,6 +52,7 @@ class PollSection(_Strict):
     option_noun: ShortText = "option"
     accent_color: str = Field(default="#2563eb", pattern=r"^#[0-9a-fA-F]{6}$")
     theme: Literal["auto", "light", "dark"] = "auto"
+    social_image: str | None = Field(default=None, pattern=r"(?i)^[^\\]+\.(png|jpe?g)$")
 
     @field_validator("opens_at", "closes_at")
     @classmethod
