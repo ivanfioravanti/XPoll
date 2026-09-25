@@ -62,10 +62,9 @@ slug = "mlx-serve"
 name = "MLX-Serve"
 url = "https://github.com/ddalcu/mlx-serve"
 
-# REVIEW: display name "mlxcil" vs repository "mlxcel".
 [[options]]
-slug = "mlxcil"
-name = "mlxcil"
+slug = "mlxcel"
+name = "mlxcel"
 url = "https://github.com/lablup/mlxcel"
 
 [[options]]
