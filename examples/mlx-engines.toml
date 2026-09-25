@@ -88,6 +88,11 @@ name = "oMLX"
 url = "https://github.com/jundot/omlx"
 
 [[options]]
+slug = "paddock"
+name = "Paddock"
+url = "https://github.com/truespar/paddock"
+
+[[options]]
 slug = "rapid-mlx"
 name = "Rapid MLX"
 url = "https://github.com/raullenchai/Rapid-MLX"
