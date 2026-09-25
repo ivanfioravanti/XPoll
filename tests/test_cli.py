@@ -183,3 +183,19 @@ def test_review_marker_needs_colon(cli_settings, capsys):
     text = cli_settings.poll_config.read_text()
     cli_settings.poll_config.write_text("# Explains the REVIEW convention\n" + text)
     assert run(cli_settings, "check") == 0
+
+
+@pytest.mark.parametrize(
+    ("line", "flagged"),
+    [
+        ("# REVIEW: decide this", True),
+        ('contact = "REVIEW: add an address"', True),
+        ('# Resolve every "REVIEW:" line before opening', False),
+        ("# Explains the REVIEW convention", False),
+        ('name = "Review board"', False),
+    ],
+)
+def test_review_marker_rule(tmp_path, line, flagged):
+    path = tmp_path / "poll.toml"
+    path.write_text(line + "\n")
+    assert bool(cli._review_lines(path)) is flagged

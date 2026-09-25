@@ -2,6 +2,7 @@
 
 import argparse
 import os
+import re
 import socket
 import subprocess
 import sys
@@ -18,7 +19,8 @@ from xpoll.poll_config import PollConfig, load_poll_config
 from xpoll.services import backup, export
 from xpoll.services.polls import voting_state
 
-REVIEW_MARKER = "REVIEW:"
+# An unresolved decision: a comment starting with "# REVIEW:" or a value starting with "REVIEW:".
+REVIEW_PATTERN = re.compile(r'^\s*#\s*REVIEW:|=\s*"REVIEW:')
 LOG_CONFIG = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -64,13 +66,13 @@ def cmd_check(args, settings: Settings) -> int:
     print(f"  options: {len(config.active_options)} active / {len(config.options)} total")
     markers = _review_lines(settings.poll_config)
     for number, line in markers:
-        print(f"  unresolved {REVIEW_MARKER} (line {number}): {line}")
+        print(f"  unresolved REVIEW (line {number}): {line}")
     return 1 if markers else 0
 
 
 def _review_lines(path: Path) -> list[tuple[int, str]]:
     lines = path.read_text(encoding="utf-8").splitlines()
-    return [(n, line.strip()) for n, line in enumerate(lines, 1) if REVIEW_MARKER in line]
+    return [(n, line.strip()) for n, line in enumerate(lines, 1) if REVIEW_PATTERN.search(line)]
 
 
 def cmd_init(args, settings: Settings) -> int:
@@ -92,7 +94,7 @@ def cmd_status(args, settings: Settings) -> int:
         if args.new_status:
             if args.new_status == "open" and not args.force and _review_lines(settings.poll_config):
                 print(
-                    f"refusing to open: {settings.poll_config} has unresolved {REVIEW_MARKER} "
+                    f"refusing to open: {settings.poll_config} has unresolved REVIEW "
                     "markers (see `pollctl check`, or pass --force)",
                     file=sys.stderr,
                 )
