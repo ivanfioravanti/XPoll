@@ -4,6 +4,7 @@
   const TURNSTILE_SRC =
     "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=xpollTurnstileReady";
   const REFRESH_MS = 10000;
+  const BASE = document.documentElement.dataset.base || "";
 
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
@@ -126,7 +127,7 @@
 
   async function refreshResults(section) {
     try {
-      const response = await fetch("/api/results", { cache: "no-cache", credentials: "same-origin" });
+      const response = await fetch(`${BASE}/api/results`, { cache: "no-cache", credentials: "same-origin" });
       if (response.ok) renderResults(section, await response.json());
     } catch (_) {
       /* keep showing the last good data */
@@ -214,7 +215,7 @@
       const optionIds = boxes.filter((b) => b.checked).map((b) => Number(b.value));
       let result;
       try {
-        result = await postJSON("/api/ballots", {
+        result = await postJSON(`${BASE}/api/ballots`, {
           option_ids: optionIds,
           turnstile_token: turnstileToken(widget),
         });
@@ -265,7 +266,7 @@
       update();
       let result;
       try {
-        result = await postJSON("/api/suggestions", {
+        result = await postJSON(`${BASE}/api/suggestions`, {
           name: name.value,
           url: $("#suggest-url", form).value || null,
           notes: $("#suggest-notes", form).value,

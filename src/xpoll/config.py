@@ -1,3 +1,4 @@
+import re
 from functools import lru_cache
 from pathlib import Path
 from typing import Literal
@@ -50,6 +51,11 @@ class Settings(BaseSettings):
         return f"{parts.scheme}://{parts.netloc}"
 
     @property
+    def base_path(self) -> str:
+        """URL prefix the app is served under, e.g. "/mlxengines" ("" when at the root)."""
+        return urlsplit(self.app_base_url).path.rstrip("/")
+
+    @property
     def base_hostname(self) -> str:
         return urlsplit(self.app_base_url).hostname or ""
 
@@ -65,6 +71,8 @@ class Settings(BaseSettings):
         parts = urlsplit(self.app_base_url)
         if parts.scheme not in {"http", "https"} or not parts.hostname:
             raise ValueError("APP_BASE_URL must be an absolute http(s) URL")
+        if parts.query or parts.fragment or not re.fullmatch(r"(/[A-Za-z0-9._~-]+)*/?", parts.path):
+            raise ValueError("APP_BASE_URL path must be like /mlxengines (no query or fragment)")
         if not self.is_production:
             return self
         problems = []

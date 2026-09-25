@@ -5,7 +5,7 @@ from importlib import resources
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from xpoll import db
@@ -59,6 +59,7 @@ def create_app(
             config.poll.slug,
             trust_cloudflare=settings.trust_cloudflare_headers,
             secure=settings.is_production,
+            cookie_path=settings.base_path or "/",
         ),
         verifier=verifier,
         ballot_limiter=RateLimiter(20, 600),
@@ -75,18 +76,38 @@ def create_app(
             status_code=422,
         )
 
-    @app.get("/healthz")
-    def healthz() -> dict[str, str]:
-        return {"status": "ok"}
-
+    app.add_api_route("/healthz", _healthz)
     app.include_router(api.router)
     app.include_router(pages.router)
     static_dir = resources.files("xpoll") / "static"
     app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
 
-    app.add_middleware(
+    root = app
+    if settings.base_path:
+        # The tunnel forwards /<prefix>/... unchanged, so the whole app lives under the prefix.
+        root = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
+        root.state.ctx = app.state.ctx
+        root.add_api_route("/healthz", _healthz)
+
+        @root.get(settings.base_path, include_in_schema=False)
+        def _to_prefix() -> RedirectResponse:
+            # Relative Location: behind the tunnel the app only sees http, never the public https.
+            return RedirectResponse(settings.base_path + "/", status_code=308)
+
+        root.mount(settings.base_path, app)
+
+    root.add_middleware(
         SecurityMiddleware, allowed_origin=settings.base_origin, hsts=settings.is_production
     )
-    app.add_middleware(AccessLogMiddleware)
-    logger.info("xpoll ready: poll=%s env=%s", config.poll.slug, settings.app_env)
-    return app
+    root.add_middleware(AccessLogMiddleware)
+    logger.info(
+        "xpoll ready: poll=%s env=%s path=%s",
+        config.poll.slug,
+        settings.app_env,
+        settings.base_path or "/",
+    )
+    return root
+
+
+def _healthz() -> dict[str, str]:
+    return {"status": "ok"}

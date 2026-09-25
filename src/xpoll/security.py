@@ -156,6 +156,6 @@ def _route_template(scope: Scope) -> str:
     route = scope.get("route")
     if route is not None and hasattr(route, "path"):
         return route.path
-    if scope["path"].startswith("/static/"):
+    if "/static/" in scope["path"]:
         return "/static/*"
     return "<unmatched>"

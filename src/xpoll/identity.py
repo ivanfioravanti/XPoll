@@ -12,12 +12,21 @@ COOKIE_MAX_AGE = 400 * 24 * 3600  # browsers cap cookie lifetime at 400 days
 
 
 class Identity:
-    def __init__(self, secret: str, poll_slug: str, *, trust_cloudflare: bool, secure: bool):
+    def __init__(
+        self,
+        secret: str,
+        poll_slug: str,
+        *,
+        trust_cloudflare: bool,
+        secure: bool,
+        cookie_path: str = "/",
+    ):
         self._secret = secret.encode()
         self._slug = poll_slug
         self._signer = Signer(secret, salt="xpoll-voter-cookie")
         self._trust_cloudflare = trust_cloudflare
         self._secure = secure
+        self._cookie_path = cookie_path
 
     def _hmac(self, purpose: str, value: str) -> str:
         message = f"{purpose}:{self._slug}:{value}".encode()
@@ -44,7 +53,7 @@ class Identity:
             httponly=True,
             secure=self._secure,
             samesite="lax",
-            path="/",
+            path=self._cookie_path,
         )
         return voter_id
 

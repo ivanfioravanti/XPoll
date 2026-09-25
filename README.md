@@ -120,6 +120,26 @@ To test locally without a tunnel, run `docker compose -f deploy/compose.yaml up 
 
 > **FileVault caveat:** LaunchAgents start only after a user logs in. With FileVault enabled, a power cut or reboot leaves the poll offline until someone logs in. Set up an external uptime check.
 
+### Several polls on one hostname
+
+Each poll is its own XPoll instance, with its own database, cookie, backups and status. The instances can share one hostname by using URL paths:
+
+```
+poll.example.org/mlxengines/*  ->  127.0.0.1:8787
+poll.example.org/next-poll/*   ->  127.0.0.1:8788
+```
+
+1. Give each poll its own directory holding `.env`, `poll.toml`, `data/`, `backups/` and `logs/`, and run `pollctl` from that directory. `pollctl` reads `.env` from the current directory.
+
+   ```bash
+   mkdir -p ~/xpoll/mlxengines && cd ~/xpoll/mlxengines
+   ~/github/XPoll/.venv/bin/pollctl init
+   ~/github/XPoll/.venv/bin/pollctl install-launchd --port 8787
+   ```
+
+2. Set `APP_BASE_URL=https://poll.example.org/mlxengines` in that poll's `.env`. Everything is then served under that path: pages, API, static files and the voter cookie. A root `/healthz` stays available for local checks.
+3. Add one tunnel route per poll, using the same hostname, the poll's path and its port. In the dashboard, a public hostname has a **Path** field (for example `mlxengines`). For a config file, see [`deploy/cloudflared-config.example.yml`](deploy/cloudflared-config.example.yml).
+
 ### Cloudflare hardening (both options)
 
 - Restrict the Turnstile widget's hostnames to your poll hostname. The server also checks the `hostname` and `action` Cloudflare returns.

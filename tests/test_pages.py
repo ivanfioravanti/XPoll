@@ -165,7 +165,7 @@ def test_nav_marks_current_page(client):
 
 def test_theme_defaults_to_auto(client):
     html = client.get("/").text
-    assert '<html lang="en" data-theme="auto">' in html
+    assert '<html lang="en" data-theme="auto" data-base="">' in html
     assert '<meta name="color-scheme" content="light dark">' in html
 
 
@@ -173,6 +173,6 @@ def test_forced_dark_theme(make_app):
     app = make_app(PollConfig.model_validate(poll_data(theme="dark")))
     open_poll(app)
     html = TestClient(app, base_url=BASE_URL).get("/").text
-    assert '<html lang="en" data-theme="dark">' in html
+    assert '<html lang="en" data-theme="dark" data-base="">' in html
     assert '<meta name="color-scheme" content="dark">' in html
     assert 'data-action="vote" data-theme="dark"' in html

@@ -4,6 +4,12 @@ tunnel: <TUNNEL-UUID>
 credentials-file: /Users/<you>/.cloudflared/<TUNNEL-UUID>.json
 
 ingress:
-  - hostname: <POLL-HOSTNAME>
+  # One XPoll instance per poll, each on its own local port and URL path.
+  # APP_BASE_URL of each instance must match: https://poll.example.org/mlxengines
+  - hostname: poll.example.org
+    path: ^/mlxengines(/|$)
     service: http://127.0.0.1:8787
+  # - hostname: poll.example.org
+  #   path: ^/next-poll(/|$)
+  #   service: http://127.0.0.1:8788
   - service: http_status:404
