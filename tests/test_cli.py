@@ -177,3 +177,9 @@ def test_invalid_env_prints_friendly_error(monkeypatch, capsys):
     err = capsys.readouterr().err
     assert "configuration error (.env)" in err
     assert "Traceback" not in err
+
+
+def test_review_marker_needs_colon(cli_settings, capsys):
+    text = cli_settings.poll_config.read_text()
+    cli_settings.poll_config.write_text("# Explains the REVIEW convention\n" + text)
+    assert run(cli_settings, "check") == 0

@@ -18,7 +18,7 @@ from xpoll.poll_config import PollConfig, load_poll_config
 from xpoll.services import backup, export
 from xpoll.services.polls import voting_state
 
-REVIEW_MARKER = "REVIEW"
+REVIEW_MARKER = "REVIEW:"
 LOG_CONFIG = {
     "version": 1,
     "disable_existing_loggers": False,

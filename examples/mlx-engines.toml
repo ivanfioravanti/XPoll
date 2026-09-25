@@ -1,5 +1,5 @@
 # MLX engine community poll: the reference deployment of XPoll.
-# Lines marked REVIEW must be resolved before `pollctl status open`.
+# Resolve every "REVIEW:" line before `pollctl status open`.
 # Hosted at https://poll.devocracy.it/mlxengines
 
 [poll]
