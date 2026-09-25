@@ -45,7 +45,7 @@ select = ["E", "F", "W", "I", "B", "UP", "S", "SIM", "RUF"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-ra"
-filterwarnings = ["ignore:Using `httpx` with `starlette.testclient`:DeprecationWarning"]
+filterwarnings = ["ignore:Using `httpx` with `starlette.testclient`"]
 
 [tool.coverage.run]
 source = ["xpoll"]

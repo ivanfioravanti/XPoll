@@ -1,0 +1,49 @@
+# Copy to poll.toml (git-ignored) and edit. Validate with: uv run pollctl check
+
+[poll]
+slug = "favorite-editors-2026"          # stable id; changing it starts a new poll
+title = "Which code editors do you use?"
+question = "Pick up to three editors you used this month."
+description = "Count any editor you opened for real work, not just installed."
+min_choices = 1
+max_choices = 3
+# Optional voting window (must include a UTC offset). Voting also requires `pollctl status open`.
+# opens_at = 2026-10-01T08:00:00Z
+# closes_at = 2026-10-15T08:00:00Z
+results_visibility = "live"             # or "after_close"
+option_noun = "editor"                  # used in UI copy: "Missing an editor?"
+accent_color = "#2563eb"
+
+[operator]
+name = "Your Name"
+contact = "you@example.org"
+retention = "Ballot identifiers are removed 30 days after the poll closes; aggregate results are kept."
+disclaimer = "Independent community survey, not affiliated with any of the listed projects."
+
+[suggestions]
+enabled = true
+allowed_hosts = ["github.com"]
+
+[[options]]
+slug = "neovim"
+name = "Neovim"
+url = "https://github.com/neovim/neovim"
+description = "Hyperextensible Vim-based text editor."
+
+[[options]]
+slug = "vscode"
+name = "VS Code"
+url = "https://github.com/microsoft/vscode"
+description = "Microsoft's open-source code editor."
+
+[[options]]
+slug = "zed"
+name = "Zed"
+url = "https://github.com/zed-industries/zed"
+description = "High-performance, multiplayer code editor."
+
+[[options]]
+slug = "helix"
+name = "Helix"
+url = "https://github.com/helix-editor/helix"
+description = "A post-modern modal text editor."

@@ -1,0 +1,121 @@
+# MLX engine community poll: the reference deployment of XPoll.
+# Lines marked REVIEW must be resolved before `pollctl status open`.
+
+[poll]
+slug = "mlx-engines-2026"
+title = "Which MLX engines do you use?"
+question = "Pick up to five MLX engines you use."
+# REVIEW: one-sentence inclusion rule for what counts as an "MLX engine".
+description = "An MLX engine is software that runs model inference on Apple silicon using MLX."
+min_choices = 1
+max_choices = 5
+# REVIEW: voting window in UTC.
+# opens_at = 2026-10-01T08:00:00Z
+# closes_at = 2026-10-15T08:00:00Z
+results_visibility = "live"
+option_noun = "engine"
+accent_color = "#2563eb"
+
+[operator]
+name = "Ivan Fioravanti"
+contact = "REVIEW: contact address"
+retention = "REVIEW: retention period for ballot identifiers, suggestions, logs and backups."
+disclaimer = "Independent community survey, not affiliated with X, Apple, or any of the listed projects."
+
+[suggestions]
+enabled = true
+allowed_hosts = ["github.com"]
+
+# REVIEW: URL is a GitHub search page, not a project repository.
+[[options]]
+slug = "atomic-chat"
+name = "Atomic Chat"
+url = "https://github.com/search?q=mlx+engine&type=repositories&p=2"
+
+[[options]]
+slug = "jan"
+name = "Jan"
+url = "https://github.com/janhq/jan"
+
+[[options]]
+slug = "lm-studio"
+name = "LMstudio"
+url = "https://github.com/lmstudio-ai/mlx-engine"
+
+[[options]]
+slug = "mlx-dspark"
+name = "mlx-dspark"
+url = "https://github.com/ARahim3/mlx-dspark"
+
+[[options]]
+slug = "mlx-lm"
+name = "MLX LM"
+url = "https://github.com/ml-explore/mlx-lm"
+
+[[options]]
+slug = "mlx-vlm"
+name = "MLX VLM"
+url = "https://github.com/Blaizzy/mlx-vlm"
+
+[[options]]
+slug = "mlx-serve"
+name = "MLX-Serve"
+url = "https://github.com/ddalcu/mlx-serve"
+
+# REVIEW: display name "mlxcil" vs repository "mlxcel".
+[[options]]
+slug = "mlxcil"
+name = "mlxcil"
+url = "https://github.com/lablup/mlxcel"
+
+[[options]]
+slug = "mtplx"
+name = "MTPLX"
+url = "https://github.com/youssofal/MTPLX"
+
+[[options]]
+slug = "nativ"
+name = "Nativ"
+url = "https://github.com/Blaizzy/nativ"
+
+# REVIEW: does Ollama belong in an "MLX engines" poll?
+[[options]]
+slug = "ollama"
+name = "Ollama"
+url = "https://github.com/ollama/ollama"
+
+[[options]]
+slug = "omlx"
+name = "oMLX"
+url = "https://github.com/jundot/omlx"
+
+[[options]]
+slug = "rapid-mlx"
+name = "Rapid MLX"
+url = "https://github.com/raullenchai/Rapid-MLX"
+
+[[options]]
+slug = "splash"
+name = "Splash"
+url = "https://github.com/incoai/splash"
+
+# REVIEW: does Unsloth belong in an "MLX engines" poll?
+[[options]]
+slug = "unsloth"
+name = "Unsloth"
+url = "https://github.com/unslothai/unsloth"
+
+[[options]]
+slug = "vllm-metal"
+name = "VLLM Metal"
+url = "https://github.com/vllm-project/vllm-metal"
+
+[[options]]
+slug = "vllm-mlx"
+name = "VLLM MLX"
+url = "https://github.com/waybarrios/vllm-mlx"
+
+[[options]]
+slug = "vmlx"
+name = "vMLX"
+url = "https://github.com/jjang-ai/mlxstudio"
