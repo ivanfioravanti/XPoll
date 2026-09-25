@@ -160,3 +160,10 @@ def test_shipped_example_passes_check_except_review(tmp_path, capsys):
     shutil.copy(ROOT / "poll.example.toml", config)
     settings = Settings(_env_file=None, database_path=tmp_path / "p.db", poll_config=config)
     assert run(settings, "check") == 0
+
+
+def test_backup_defaults_to_backup_dir_setting(cli_settings, tmp_path, capsys):
+    settings = cli_settings.model_copy(update={"backup_dir": tmp_path / "configured"})
+    run(settings, "init")
+    assert run(settings, "backup") == 0
+    assert list((tmp_path / "configured").glob("poll-*.db"))

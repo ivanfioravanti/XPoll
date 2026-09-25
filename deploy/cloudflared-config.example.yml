@@ -1,0 +1,9 @@
+# Native (non-Docker) locally-managed tunnel. Copy to ~/.cloudflared/config.yml and fill in.
+# Never commit the credentials JSON.
+tunnel: <TUNNEL-UUID>
+credentials-file: /Users/<you>/.cloudflared/<TUNNEL-UUID>.json
+
+ingress:
+  - hostname: <POLL-HOSTNAME>
+    service: http://127.0.0.1:8787
+  - service: http_status:404

@@ -1,0 +1,43 @@
+# Run from the repository root:  docker compose -f deploy/compose.yaml up -d --build
+# App only (local testing, no tunnel):  docker compose -f deploy/compose.yaml up app
+# Needs ./.env (secrets + TUNNEL_TOKEN) and ./poll.toml. No host ports are published:
+# the only way in is the Cloudflare Tunnel.
+name: xpoll
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    env_file: ../.env
+    environment:
+      DATABASE_PATH: /data/poll.db
+      BACKUP_DIR: /backups
+      POLL_CONFIG: /config/poll.toml
+      TRUST_CLOUDFLARE_HEADERS: "true"
+    volumes:
+      - xpoll-data:/data # named volume: SQLite WAL is unreliable on macOS bind mounts
+      - xpoll-backups:/backups
+      - ../poll.toml:/config/poll.toml:ro
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    restart: unless-stopped
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest # pin a release tag for production
+    command: tunnel --no-autoupdate run
+    env_file: ../.env # reads TUNNEL_TOKEN
+    depends_on:
+      app:
+        condition: service_healthy
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    restart: unless-stopped
+
+volumes:
+  xpoll-data:
+  xpoll-backups:

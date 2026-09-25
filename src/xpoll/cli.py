@@ -131,7 +131,10 @@ def cmd_export(args, settings: Settings) -> int:
 
 def cmd_backup(args, settings: Settings) -> int:
     path = backup.backup_database(
-        settings.database_path, Path(args.dest_dir), now=_now(), keep=args.keep
+        settings.database_path,
+        Path(args.dest_dir) if args.dest_dir else settings.backup_dir,
+        now=_now(),
+        keep=args.keep,
     )
     print(f"backup ok: {path}")
     return 0
@@ -246,7 +249,7 @@ def build_parser() -> argparse.ArgumentParser:
     exp.add_argument("-o", "--output")
 
     bak = sub.add_parser("backup", help="verified online backup of the database")
-    bak.add_argument("--dest-dir", default="backups")
+    bak.add_argument("--dest-dir", help="defaults to BACKUP_DIR (./backups)")
     bak.add_argument("--keep", type=int, default=48)
 
     res = sub.add_parser("restore", help="restore a backup to an explicit path (app stopped)")

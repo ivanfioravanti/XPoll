@@ -34,6 +34,7 @@ class Settings(BaseSettings):
     app_base_url: str = "http://127.0.0.1:8787"
     database_path: Path = Path("data/poll.db")
     poll_config: Path = Path("poll.toml")
+    backup_dir: Path = Path("backups")
     voter_secret: SecretStr = SecretStr(DEV_VOTER_SECRET)
     turnstile_site_key: str = "1x00000000000000000000AA"
     turnstile_secret_key: SecretStr = SecretStr("1x0000000000000000000000000000000AA")

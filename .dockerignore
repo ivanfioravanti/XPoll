@@ -1,0 +1,15 @@
+.git
+.github
+.venv
+.env
+.claude
+data
+backups
+logs
+tests
+deploy
+*.db*
+**/__pycache__
+.pytest_cache
+.ruff_cache
+.coverage
