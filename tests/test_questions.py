@@ -82,6 +82,8 @@ def test_mlx_example_questions():
     config = load_poll_config(Path(__file__).resolve().parents[1] / "examples/mlx-engines.toml")
     chip, memory = config.questions
     assert "M5 Ultra" in chip.choices
+    assert chip.choices[-2:] == ("M6", "Other")
+    assert "M6 Pro" not in chip.choices
     assert "M4 Ultra" not in chip.choices
     assert memory.choices[0] == "36 GB or less"
 
