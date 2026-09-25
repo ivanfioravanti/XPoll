@@ -10,6 +10,7 @@ from importlib import resources
 from pathlib import Path
 
 from jinja2 import Environment
+from pydantic import ValidationError
 
 from xpoll import db
 from xpoll.config import Settings, get_settings
@@ -291,7 +292,14 @@ COMMANDS = {
 
 def main(argv: list[str] | None = None, settings: Settings | None = None) -> int:
     args = build_parser().parse_args(argv)
-    return COMMANDS[args.command](args, settings or get_settings())
+    if settings is None:
+        try:
+            settings = get_settings()
+        except ValidationError as exc:
+            for error in exc.errors():
+                print(f"configuration error (.env): {error['msg']}", file=sys.stderr)
+            return 2
+    return COMMANDS[args.command](args, settings)
 
 
 if __name__ == "__main__":

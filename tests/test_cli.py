@@ -167,3 +167,13 @@ def test_backup_defaults_to_backup_dir_setting(cli_settings, tmp_path, capsys):
     run(settings, "init")
     assert run(settings, "backup") == 0
     assert list((tmp_path / "configured").glob("poll-*.db"))
+
+
+def test_invalid_env_prints_friendly_error(monkeypatch, capsys):
+    monkeypatch.setenv("APP_ENV", "production")
+    monkeypatch.setenv("APP_BASE_URL", "https://poll.example.org")
+    monkeypatch.setattr(cli, "get_settings", lambda: Settings(_env_file=None))
+    assert cli.main(["check"]) == 2
+    err = capsys.readouterr().err
+    assert "configuration error (.env)" in err
+    assert "Traceback" not in err
