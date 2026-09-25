@@ -85,30 +85,36 @@
   }
 
   // --- results --------------------------------------------------------------
+  function el(tag, className, text) {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
+
   function renderResults(section, data) {
     const list = $("#result-list", section);
     const fragment = document.createDocumentFragment();
     data.results.forEach((row) => {
-      const li = document.createElement("li");
-      li.className = "result";
-      const head = document.createElement("div");
-      head.className = "result-row";
-      const name = document.createElement("a");
-      name.className = "result-name";
-      name.textContent = row.name;
+      const rank = 1 + data.results.filter((r) => r.respondents > row.respondents).length;
+      const li = el("li", "result");
+      if (row.respondents === 0) li.classList.add("is-zero");
+      else if (rank === 1) li.classList.add("is-leader");
+      const name = el("a", "result-name", row.name);
       if (typeof row.url === "string" && row.url.startsWith("https://")) name.href = row.url;
       name.target = "_blank";
       name.rel = "noopener noreferrer";
-      const count = document.createElement("span");
-      count.className = "result-count";
-      count.textContent = `${row.respondents} · ${Number(row.percentage).toFixed(1)}%`;
-      head.append(name, count);
-      const bar = document.createElement("progress");
-      bar.className = "result-bar";
+      const bar = el("progress", "result-bar");
       bar.max = 100;
       bar.value = row.percentage;
       bar.setAttribute("aria-hidden", "true");
-      li.append(head, bar);
+      li.append(
+        el("span", "result-rank", String(rank)),
+        name,
+        el("span", "result-pct", `${Number(row.percentage).toFixed(1)}%`),
+        bar,
+        el("span", "result-count", `${row.respondents} ${row.respondents === 1 ? "vote" : "votes"}`),
+      );
       fragment.appendChild(li);
     });
     list.replaceChildren(fragment);
@@ -166,19 +172,34 @@
     const max = Number(form.dataset.max);
     const boxes = $$('input[name="option"]', form);
     const counter = $("#selected-count", form);
+    const hint = $("#bar-hint", form);
+    const slots = $$(".slot", form);
     const submit = $("#ballot-submit", form);
     const errorBox = $("#ballot-error", form);
     const widget = $("[data-turnstile]", form);
     let submitting = false;
 
+    const hintFor = (selected, hasToken) => {
+      if (submitting) return "Sending your vote…";
+      if (selected === 0) return min > 1 ? `Pick ${min} to ${max}` : `Pick up to ${max}`;
+      if (selected < min) return `Pick ${min - selected} more`;
+      if (!hasToken) return "Complete the bot check above";
+      return selected >= max ? "All picks used · ready" : "Ready to vote";
+    };
+
     const update = () => {
       const selected = boxes.filter((b) => b.checked).length;
+      const hasToken = Boolean(turnstileToken(widget));
       counter.textContent = String(selected);
+      slots.forEach((slot, i) => slot.classList.toggle("is-filled", i < selected));
       boxes.forEach((b) => {
         b.disabled = !b.checked && selected >= max;
-        b.closest(".option").classList.toggle("is-disabled", b.disabled);
+        const card = b.closest(".option");
+        card.classList.toggle("is-selected", b.checked);
+        card.classList.toggle("is-disabled", b.disabled);
       });
-      submit.disabled = submitting || selected < min || !turnstileToken(widget);
+      hint.textContent = hintFor(selected, hasToken);
+      submit.disabled = submitting || selected < min || !hasToken;
     };
 
     registerTurnstile(widget, update);
@@ -203,7 +224,10 @@
       if (result.status === 201 || result.status === 409) {
         form.hidden = true;
         const thanks = $("#thanks");
-        if (result.status === 409) $("h2", thanks).textContent = "You have already voted from this browser.";
+        if (result.status === 409) {
+          $("h2", thanks).textContent = "You have already voted from this browser.";
+          $("p", thanks).textContent = "Each browser gets one vote. Results update live below.";
+        }
         thanks.hidden = false;
         thanks.focus();
         showResults();

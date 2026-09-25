@@ -1,19 +1,24 @@
-<section class="results" id="results" aria-labelledby="results-heading"
+<section class="readout" id="results" aria-labelledby="results-heading"
          data-live="{{ 'true' if state != 'closed' else 'false' }}">
-  <h2 id="results-heading">{{ 'Final results' if state == 'closed' else 'Live results' }}</h2>
-  <p class="meta">
-    <strong id="total-ballots">{{ snapshot.total_ballots }}</strong>
-    <span id="ballots-label">{{ 'ballot' if snapshot.total_ballots == 1 else 'ballots' }}</span>
-    · last refreshed <time id="refreshed-at">now</time>
-  </p>
+  <div class="readout-head">
+    <h2 id="results-heading">
+      {% if state == "closed" %}Final results{% else %}<span class="live-dot" aria-hidden="true"></span>Live results{% endif %}
+    </h2>
+    <p class="readout-meta">
+      <strong id="total-ballots">{{ snapshot.total_ballots }}</strong>
+      <span id="ballots-label">{{ 'ballot' if snapshot.total_ballots == 1 else 'ballots' }}</span>
+      <span aria-hidden="true">·</span> updated <time id="refreshed-at">now</time>
+    </p>
+  </div>
   <ol class="result-list" id="result-list">
     {% for row in snapshot.results %}
-    <li class="result">
-      <div class="result-row">
-        <a class="result-name" href="{{ row.url }}" target="_blank" rel="noopener noreferrer">{{ row.name }}</a>
-        <span class="result-count">{{ row.respondents }} · {{ "%.1f"|format(row.percentage) }}%</span>
-      </div>
+    {% set rank = 1 + (snapshot.results | selectattr("respondents", "gt", row.respondents) | list | length) %}
+    <li class="result{% if row.respondents == 0 %} is-zero{% elif rank == 1 %} is-leader{% endif %}">
+      <span class="result-rank">{{ rank }}</span>
+      <a class="result-name" href="{{ row.url }}" target="_blank" rel="noopener noreferrer">{{ row.name }}</a>
+      <span class="result-pct">{{ "%.1f" | format(row.percentage) }}%</span>
       <progress class="result-bar" max="100" value="{{ row.percentage }}" aria-hidden="true">{{ row.percentage }}%</progress>
+      <span class="result-count">{{ row.respondents }} {{ 'vote' if row.respondents == 1 else 'votes' }}</span>
     </li>
     {% endfor %}
   </ol>

@@ -1,14 +1,15 @@
 {% extends "base.html" %}
 {% block title %}Results · {{ poll.title }}{% endblock %}
 {% block content %}
-<section class="intro">
+<section class="hero hero-compact">
+  {% include "_status.html" %}
   <h1>{{ poll.title }}</h1>
-  <p class="question">{{ poll.question }}</p>
+  <p class="lede">{{ poll.question }}</p>
 </section>
 {% if results_visible %}
 {% include "_results.html" %}
 {% else %}
 <p class="notice">Results will be published when the poll closes.</p>
 {% endif %}
-{% if state == "open" and not already_voted %}<p><a class="button primary" href="/">Cast your vote</a></p>{% endif %}
+{% if state == "open" and not already_voted %}<p class="cta"><a class="button primary" href="/">Cast your vote</a></p>{% endif %}
 {% endblock %}

@@ -26,6 +26,9 @@ def test_ballot_page_contract(app, client):
     assert "Old" not in html
     assert html.index("Alpha") < html.index("beta") < html.index("Gamma") < html.index("Delta")
     assert "/3 selected" in html
+    assert html.count('<span class="slot"></span>') == 3
+    assert "Pick up to 3" in html
+    assert 'id="bar-hint"' in html
     assert 'data-min="1" data-max="3"' in html
     assert 'href="/privacy"' in html
     assert 'data-sitekey="1x00000000000000000000AA"' in html
@@ -94,7 +97,9 @@ def test_results_page_contract(app, voter):
     assert 'id="total-ballots">1<' in html
     assert 'id="refreshed-at"' in html
     assert '<progress class="result-bar" max="100" value="100.0"' in html
-    assert "1 · 100.0%" in html
+    assert '<span class="result-pct">100.0%</span>' in html
+    assert '<span class="result-count">1 vote</span>' in html
+    assert 'class="result is-leader"' in html
     assert "may total more than 100%" in html
     assert 'data-live="true"' in html
     assert "Cast your vote" not in html
@@ -136,3 +141,23 @@ def test_user_content_is_escaped(make_app):
     html = TestClient(app, base_url=BASE_URL).get("/").text
     assert "<script>alert(1)</script>" not in html
     assert "&lt;script&gt;" in html
+
+
+def test_tied_options_share_a_rank(app, client):
+    from tests.test_results import add_ballot
+
+    conn = db.connect(app.state.ctx.settings.database_path)
+    add_ballot(conn, app.state.ctx.poll_id, 1, "alpha", "beta")
+    add_ballot(conn, app.state.ctx.poll_id, 2, "gamma")
+    conn.close()
+    app.state.ctx.results.invalidate()
+    html = client.get("/results").text
+    ranks = [chunk.split("<", 1)[0] for chunk in html.split('class="result-rank">')[1:]]
+    assert ranks == ["1", "1", "1", "4"]
+    assert html.count("is-leader") == 3
+    assert html.count("is-zero") == 1
+
+
+def test_nav_marks_current_page(client):
+    assert '<a href="/results" aria-current="page">' in client.get("/results").text
+    assert '<a href="/" aria-current="page">' in client.get("/").text

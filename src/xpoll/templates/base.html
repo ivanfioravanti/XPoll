@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>{% block title %}{{ poll.title }}{% endblock %}</title>
   <meta name="description" content="{{ poll.question }}">
   <meta property="og:title" content="{{ poll.title }}">
@@ -13,22 +13,29 @@
   <link rel="stylesheet" href="/theme.css">
   <script src="/static/app.js" defer></script>
 </head>
-<body>
+<body class="page-{{ page }}">
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header">
-    <a class="brand" href="/">{{ poll.title }}</a>
-    <nav aria-label="Poll">
-      <a href="/">Vote</a>
-      <a href="/results">Results</a>
-      <a href="/privacy">Privacy</a>
-    </nav>
+    <div class="container header-inner">
+      <a class="brand" href="/">
+        <img src="/static/favicon.svg" alt="" width="24" height="24">
+        <span class="brand-text">{{ poll.title }}</span>
+      </a>
+      <nav class="site-nav" aria-label="Poll">
+        <a href="/"{% if page == "index" %} aria-current="page"{% endif %}>Vote</a>
+        <a href="/results"{% if page == "results" %} aria-current="page"{% endif %}>Results</a>
+        <a href="/privacy"{% if page == "privacy" %} aria-current="page"{% endif %}>Privacy</a>
+      </nav>
+    </div>
   </header>
   <main id="main" class="container">
     {% block content %}{% endblock %}
   </main>
-  <footer class="site-footer container">
-    {% if operator.disclaimer %}<p>{{ operator.disclaimer }}</p>{% endif %}
-    <p>Run by {{ operator.name }} · <a href="/privacy">Privacy</a> · Powered by XPoll</p>
+  <footer class="site-footer">
+    <div class="container">
+      {% if operator.disclaimer %}<p>{{ operator.disclaimer }}</p>{% endif %}
+      <p>Run by {{ operator.name }} · <a href="/privacy">Privacy</a> · Powered by XPoll</p>
+    </div>
   </footer>
 </body>
 </html>

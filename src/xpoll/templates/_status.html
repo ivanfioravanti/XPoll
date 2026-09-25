@@ -1,0 +1,6 @@
+<p class="eyebrow">
+  {% if state == "open" %}<span class="live-dot" aria-hidden="true"></span>Voting open{% if db_poll.closes_at %} · closes <time class="localtime" datetime="{{ db_poll.closes_at }}">{{ db_poll.closes_at }}</time>{% endif %}
+  {% elif state == "scheduled" %}Opens <time class="localtime" datetime="{{ db_poll.opens_at }}">{{ db_poll.opens_at }}</time>
+  {% elif state == "draft" %}Not open yet
+  {% else %}Voting closed{% endif %}
+</p>

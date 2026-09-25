@@ -34,6 +34,7 @@ def _base_context(request: Request, ctx: AppContext, conn: sqlite3.Connection) -
 
 
 def _render(request: Request, ctx: AppContext, name: str, context: dict) -> HTMLResponse:
+    context.setdefault("page", name.removesuffix(".html"))
     response = templates.TemplateResponse(request, name, context)
     response.headers["Cache-Control"] = "no-store"
     ctx.identity.ensure_cookie(request, response)

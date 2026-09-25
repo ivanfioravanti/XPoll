@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Privacy · {{ poll.title }}{% endblock %}
 {% block content %}
-<article class="prose">
+<article class="prose hero">
   <h1>Privacy</h1>
   <p>This is an independent community survey run by {{ operator.name }}.
     {% if operator.disclaimer %}{{ operator.disclaimer }}{% endif %}</p>

@@ -1,19 +1,20 @@
 {% extends "base.html" %}
+{% set min_c = db_poll.min_choices %}{% set max_c = db_poll.max_choices %}
 {% block content %}
-<section class="intro">
+<section class="hero">
+  {% include "_status.html" %}
   <h1>{{ poll.title }}</h1>
-  <p class="question">{{ poll.question }}</p>
+  <p class="lede">{{ poll.question }}</p>
   {% if poll.description %}<p class="rule">{{ poll.description }}</p>{% endif %}
 </section>
 
 {% if state == "open" and not already_voted %}
-<form id="ballot" class="ballot" novalidate
-      data-min="{{ db_poll.min_choices }}" data-max="{{ db_poll.max_choices }}">
-  <div class="counter" id="counter" aria-live="polite">
-    <span id="selected-count">0</span>/{{ db_poll.max_choices }} selected
-  </div>
+<form id="ballot" class="ballot" novalidate data-min="{{ min_c }}" data-max="{{ max_c }}">
   <fieldset>
-    <legend class="visually-hidden">{{ poll.question }}</legend>
+    <legend class="ballot-legend">
+      <span class="legend-title">{{ poll.option_noun | capitalize }}s</span>
+      <span class="legend-hint">{% if min_c == max_c %}Pick {{ max_c }}{% elif min_c == 1 %}Pick up to {{ max_c }}{% else %}Pick {{ min_c }}–{{ max_c }}{% endif %}</span>
+    </legend>
     <ul class="options">
       {% for option in options %}
       <li class="option">
@@ -23,18 +24,26 @@
           {% if option.description %}<span class="option-desc">{{ option.description }}</span>{% endif %}
         </label>
         <a class="repo-link" href="{{ option.url }}" target="_blank" rel="noopener noreferrer"
-           aria-label="{{ option.name }} repository (opens in a new tab)">Repo&nbsp;↗</a>
+           aria-label="{{ option.name }} on {{ 'GitHub' if 'github.com' in option.url else 'the web' }} (opens in a new tab)">{{ 'GitHub' if 'github.com' in option.url else 'Website' }}&nbsp;↗</a>
       </li>
       {% endfor %}
     </ul>
   </fieldset>
   <div class="turnstile" data-turnstile data-sitekey="{{ site_key }}" data-action="vote"></div>
   <p class="form-error" id="ballot-error" role="alert" aria-live="assertive"></p>
-  <button type="submit" id="ballot-submit" class="primary" disabled>Submit vote</button>
-  <noscript><p class="notice">Voting requires JavaScript for the bot check. Results are available on the <a href="/results">results page</a>.</p></noscript>
+  <div class="ballot-bar">
+    <div class="meter" aria-hidden="true">{% for _ in range(max_c) %}<span class="slot"></span>{% endfor %}</div>
+    <p class="bar-status" id="counter" aria-live="polite">
+      <span class="bar-count"><span id="selected-count">0</span>/{{ max_c }} selected</span>
+      <span class="bar-hint" id="bar-hint"></span>
+    </p>
+    <button type="submit" id="ballot-submit" class="primary" disabled>Cast vote</button>
+  </div>
+  <noscript><p class="notice">Voting needs JavaScript for the bot check. You can still see the <a href="/results">results</a>.</p></noscript>
 </form>
 <section id="thanks" class="notice success" hidden tabindex="-1">
-  <h2>Thanks, your vote was recorded.</h2>
+  <h2>Your vote is in.</h2>
+  <p>Thanks for taking part. Results update live below.</p>
 </section>
 {% elif already_voted %}
 <section class="notice success"><h2>You have already voted from this browser.</h2></section>
@@ -44,10 +53,6 @@
 <section class="notice"><h2>Voting opens <time class="localtime" datetime="{{ db_poll.opens_at }}">{{ db_poll.opens_at }}</time>.</h2></section>
 {% else %}
 <section class="notice"><h2>Voting has closed.</h2></section>
-{% endif %}
-
-{% if state == "open" and db_poll.closes_at %}
-<p class="closes">Voting closes <time class="localtime" datetime="{{ db_poll.closes_at }}">{{ db_poll.closes_at }}</time>.</p>
 {% endif %}
 
 <div id="results-slot" data-visible="{{ 'true' if results_visible else 'false' }}"
@@ -62,13 +67,13 @@
 <details class="suggest">
   <summary>Suggest a missing {{ poll.option_noun }}</summary>
   <form id="suggestion" class="suggestion-form" novalidate>
-    <p>Suggestions are reviewed by the organizer and never added to the ballot automatically.</p>
+    <p class="suggest-note">The organizer reviews every suggestion. Nothing is added to the ballot automatically.</p>
     <label for="suggest-name">Name <span aria-hidden="true">*</span></label>
     <input id="suggest-name" name="name" required minlength="2" maxlength="80" autocomplete="off">
-    <label for="suggest-url">Repository URL (optional)</label>
+    <label for="suggest-url">Repository URL <span class="optional">optional</span></label>
     <input id="suggest-url" name="url" type="url" maxlength="300" inputmode="url"
            placeholder="https://github.com/owner/repo">
-    <label for="suggest-notes">Notes (optional)</label>
+    <label for="suggest-notes">Notes <span class="optional">optional</span></label>
     <textarea id="suggest-notes" name="notes" maxlength="500" rows="3"></textarea>
     <div class="turnstile" data-turnstile data-sitekey="{{ site_key }}" data-action="suggest"></div>
     <p class="form-error" id="suggest-error" role="alert" aria-live="assertive"></p>
