@@ -1,17 +1,16 @@
 # MLX engine community poll: the reference deployment of XPoll.
 # Lines marked REVIEW must be resolved before `pollctl status open`.
+# Hosted at https://poll.devocracy.it/mlxengines
 
 [poll]
 slug = "mlx-engines-2026"
 title = "Which MLX engines do you use?"
 question = "Pick up to five MLX engines you use."
-# REVIEW: one-sentence inclusion rule for what counts as an "MLX engine".
-description = "An MLX engine is software that runs model inference on Apple silicon using MLX."
+description = "Count any app or library you use to run models on Apple silicon through MLX, even if MLX is one of several backends."
 min_choices = 1
 max_choices = 5
-# REVIEW: voting window in UTC.
-# opens_at = 2026-10-01T08:00:00Z
-# closes_at = 2026-10-15T08:00:00Z
+# REVIEW: at launch, set closes_at to the opening time + 7 days (UTC), then remove this line.
+# closes_at = 2026-10-08T08:00:00Z
 results_visibility = "live"
 option_noun = "engine"
 accent_color = "#2563eb"
@@ -19,19 +18,18 @@ theme = "dark"
 
 [operator]
 name = "Ivan Fioravanti"
-contact = "REVIEW: contact address"
-retention = "REVIEW: retention period for ballot identifiers, suggestions, logs and backups."
+contact = "@ivanfioravanti on X"
+retention = "Voter and network identifiers are deleted 30 days after the poll closes, and so are backups and logs containing them. Aggregate results are kept."
 disclaimer = "Independent community survey, not affiliated with X, Apple, or any of the listed projects."
 
 [suggestions]
 enabled = true
 allowed_hosts = ["github.com"]
 
-# REVIEW: URL is a GitHub search page, not a project repository.
 [[options]]
 slug = "atomic-chat"
 name = "Atomic Chat"
-url = "https://github.com/search?q=mlx+engine&type=repositories&p=2"
+url = "https://github.com/AtomicBot-ai/Atomic-Chat"
 
 [[options]]
 slug = "jan"
@@ -78,7 +76,6 @@ slug = "nativ"
 name = "Nativ"
 url = "https://github.com/Blaizzy/nativ"
 
-# REVIEW: does Ollama belong in an "MLX engines" poll?
 [[options]]
 slug = "ollama"
 name = "Ollama"
@@ -99,7 +96,6 @@ slug = "splash"
 name = "Splash"
 url = "https://github.com/incoai/splash"
 
-# REVIEW: does Unsloth belong in an "MLX engines" poll?
 [[options]]
 slug = "unsloth"
 name = "Unsloth"
