@@ -156,11 +156,32 @@ def test_rate_limit_counts_only_failed_attempts(opened, voter):
 
 
 def test_rate_limit_returns_retry_after(opened, voter):
-    limiter = opened.state.ctx.ballot_limiter
-    limiter.acquire = lambda key: 42
+    opened.state.ctx.ballot_limiter.check = lambda key: 42
     response = vote(voter, ids(opened, "alpha"))
     assert response.status_code == 429
     assert response.headers["retry-after"] == "42"
+
+
+def test_failed_turnstile_attempts_count_towards_limit(make_app):
+    app = make_app(verifier=FakeVerifier(ok=False))
+    open_poll(app)
+    client = TestClient(app, base_url=BASE_URL, headers={"Origin": BASE_URL})
+    client.get("/")
+    statuses = [vote(client, ids(app, "alpha")).status_code for _ in range(21)]
+    assert statuses == [403] * 20 + [429]
+
+
+def test_concurrent_voters_on_one_network_are_not_blocked(opened):
+    from concurrent.futures import ThreadPoolExecutor
+
+    def one(_):
+        client = TestClient(opened, base_url=BASE_URL, headers={"Origin": BASE_URL})
+        client.get("/")
+        return vote(client, ids(opened, "alpha")).status_code
+
+    with ThreadPoolExecutor(16) as pool:
+        assert set(pool.map(one, range(60))) == {201}
+    assert count(opened) == 60
 
 
 def test_successful_ballots_do_not_consume_rate_limit(opened):

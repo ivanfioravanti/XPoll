@@ -71,15 +71,18 @@ def cast_ballot(payload: BallotIn, request: Request, ctx: Ctx, conn: Conn):
             400, "cookies-required", "Please enable cookies for this site, reload, and try again."
         )
     network_hash = ctx.identity.network_hash(ctx.identity.client_ip(request))
-    retry_after = ctx.ballot_limiter.acquire(network_hash)
+    limiter = ctx.ballot_limiter
+    retry_after = limiter.check(network_hash)
     if retry_after is not None:
         return too_many(retry_after)
 
+    # Only failed attempts cost a token, so a busy shared network is never blocked by success.
     voter_hash = ctx.identity.voter_hash(voter_id)
     if has_voted(conn, ctx.poll_id, voter_hash):
+        limiter.hit(network_hash)
         return error(409, "already-voted", "This browser has already voted.")
-    verdict = ctx.verifier.verify(payload.turnstile_token, action="vote")
-    if not verdict.ok:
+    if not ctx.verifier.verify(payload.turnstile_token, action="vote").ok:
+        limiter.hit(network_hash)
         return error(403, "verification-failed", "Bot check failed. Please try again.")
 
     try:
@@ -92,8 +95,9 @@ def cast_ballot(payload: BallotIn, request: Request, ctx: Ctx, conn: Conn):
             now=ctx.now(),
         )
     except BallotRejected as exc:
+        if exc.status == 409:
+            limiter.hit(network_hash)
         return error(exc.status, exc.code, exc.message)
-    ctx.ballot_limiter.refund(network_hash)
     ctx.results.invalidate()
     return {"ballot_id": ballot_id, "accepted_choices": len(option_ids), "total_ballots": total}
 
@@ -116,16 +120,17 @@ def suggest(payload: SuggestionIn, request: Request, ctx: Ctx, conn: Conn):
         return error(404, "not-found", "Suggestions are disabled.")
     if ctx.state(conn) not in {"open", "scheduled"}:
         return error(403, "poll-not-open", "Suggestions are not being accepted right now.")
+    network_hash = ctx.identity.network_hash(ctx.identity.client_ip(request))
+    retry_after = ctx.suggestion_limiter.check(network_hash)
+    if retry_after is not None:
+        return too_many(retry_after)
+    ctx.suggestion_limiter.hit(network_hash)
     try:
         name, url, notes = validate_suggestion(
             payload.name, payload.url, payload.notes, allowed_hosts=settings.allowed_hosts
         )
     except SuggestionRejected as exc:
         return error(422, exc.code, exc.message)
-    network_hash = ctx.identity.network_hash(ctx.identity.client_ip(request))
-    retry_after = ctx.suggestion_limiter.acquire(network_hash)
-    if retry_after is not None:
-        return too_many(retry_after)
     if not ctx.verifier.verify(payload.turnstile_token, action="suggest").ok:
         return error(403, "verification-failed", "Bot check failed. Please try again.")
     store_suggestion(
