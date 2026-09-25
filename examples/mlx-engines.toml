@@ -98,6 +98,16 @@ name = "Rapid MLX"
 url = "https://github.com/raullenchai/Rapid-MLX"
 
 [[options]]
+slug = "rmlx"
+name = "rMLX"
+url = "https://github.com/Pushkinist/rMLX"
+
+[[options]]
+slug = "sglang"
+name = "SGLang"
+url = "https://github.com/sgl-project/sglang"
+
+[[options]]
 slug = "splash"
 name = "Splash"
 url = "https://github.com/incoai/splash"
