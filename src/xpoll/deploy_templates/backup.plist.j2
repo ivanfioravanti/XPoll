@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>{{ label }}.backup</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>{{ pollctl }}</string>
+    <string>backup</string>
+  </array>
+  <key>WorkingDirectory</key>
+  <string>{{ workdir }}</string>
+  <key>StartInterval</key>
+  <integer>{{ interval }}</integer>
+  <key>Umask</key>
+  <integer>63</integer>
+  <key>StandardOutPath</key>
+  <string>{{ logdir }}/backup.log</string>
+  <key>StandardErrorPath</key>
+  <string>{{ logdir }}/backup.err.log</string>
+</dict>
+</plist>
