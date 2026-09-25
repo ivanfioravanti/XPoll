@@ -1,0 +1,23 @@
+# secrets and runtime state
+.env
+data/
+backups/
+logs/
+*.db
+*.db-shm
+*.db-wal
+poll.toml
+
+# python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+dist/
+
+# local tooling
+.claude/settings.local.json
+.DS_Store
