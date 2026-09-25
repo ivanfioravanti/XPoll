@@ -59,3 +59,85 @@ def option_ids(conn, *slugs: str) -> list[int]:
     rows = conn.execute("SELECT slug, id FROM options").fetchall()
     by_slug = {r["slug"]: r["id"] for r in rows}
     return [by_slug[s] for s in slugs]
+
+
+class FakeVerifier:
+    def __init__(self, ok: bool = True):
+        self.ok = ok
+        self.calls: list[tuple[str, str]] = []
+
+    def verify(self, token: str, *, action: str):
+        from xpoll.turnstile import TurnstileResult
+
+        self.calls.append((token, action))
+        return TurnstileResult(self.ok, "ok" if self.ok else "invalid-token")
+
+
+class Clock:
+    def __init__(self, now: datetime = NOW):
+        self.now = now
+
+    def __call__(self) -> datetime:
+        return self.now
+
+
+BASE_URL = "https://poll.example.org"
+
+
+@pytest.fixture
+def settings(db_path):
+    from xpoll.config import Settings
+
+    return Settings(_env_file=None, app_base_url=BASE_URL, database_path=db_path)
+
+
+@pytest.fixture
+def verifier():
+    return FakeVerifier()
+
+
+@pytest.fixture
+def clock():
+    return Clock()
+
+
+@pytest.fixture
+def make_app(settings, verifier, clock):
+    from xpoll.main import create_app
+
+    def factory(config: PollConfig | None = None, **overrides):
+        return create_app(
+            settings=overrides.get("settings", settings),
+            config=config or PollConfig.model_validate(poll_data()),
+            verifier=overrides.get("verifier", verifier),
+            now=clock,
+        )
+
+    return factory
+
+
+@pytest.fixture
+def app(make_app):
+    return make_app()
+
+
+def open_poll(app):
+    ctx = app.state.ctx
+    connection = db.connect(ctx.settings.database_path)
+    db.set_status(connection, ctx.poll_id, "open")
+    connection.close()
+
+
+@pytest.fixture
+def client(app):
+    from fastapi.testclient import TestClient
+
+    with TestClient(app, base_url=BASE_URL, headers={"Origin": BASE_URL}) as test_client:
+        yield test_client
+
+
+@pytest.fixture
+def voter(client):
+    """A client that has loaded the page and received its voter cookie."""
+    assert client.get("/").status_code == 200
+    return client

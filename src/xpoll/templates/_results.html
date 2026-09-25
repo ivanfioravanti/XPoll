@@ -1,0 +1,22 @@
+<section class="results" id="results" aria-labelledby="results-heading"
+         data-live="{{ 'true' if state != 'closed' else 'false' }}">
+  <h2 id="results-heading">{{ 'Final results' if state == 'closed' else 'Live results' }}</h2>
+  <p class="meta">
+    <strong id="total-ballots">{{ snapshot.total_ballots }}</strong>
+    <span id="ballots-label">{{ 'ballot' if snapshot.total_ballots == 1 else 'ballots' }}</span>
+    · last refreshed <time id="refreshed-at">now</time>
+  </p>
+  <ol class="result-list" id="result-list">
+    {% for row in snapshot.results %}
+    <li class="result">
+      <div class="result-row">
+        <a class="result-name" href="{{ row.url }}" target="_blank" rel="noopener noreferrer">{{ row.name }}</a>
+        <span class="result-count">{{ row.respondents }} · {{ row.percentage }}%</span>
+      </div>
+      <progress class="result-bar" max="100" value="{{ row.percentage }}" aria-hidden="true">{{ row.percentage }}%</progress>
+    </li>
+    {% endfor %}
+  </ol>
+  {% if not snapshot.results %}<p class="empty">No {{ poll.option_noun }}s yet.</p>{% endif %}
+  <p class="methodology">Percentages show the share of ballots selecting each {{ poll.option_noun }}. Each ballot can select up to {{ db_poll.max_choices }}, so percentages may total more than 100%.</p>
+</section>
