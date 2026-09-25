@@ -3,8 +3,12 @@ import time
 import uuid
 from collections.abc import Callable, Iterable
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from xpoll.db import immediate, to_iso
+
+if TYPE_CHECKING:
+    from xpoll.poll_config import Question
 
 
 class BallotRejected(Exception):
@@ -31,6 +35,21 @@ def validate_choices(
     return option_ids
 
 
+def validate_answers(
+    answers: dict[str, str], questions: Iterable["Question"]
+) -> list[tuple[str, str]]:
+    """Optional answers: blanks are skipped; anything not offered in poll.toml is rejected."""
+    allowed = {q.slug: set(q.choices) for q in questions}
+    cleaned = []
+    for slug, choice in answers.items():
+        if choice == "":
+            continue
+        if slug not in allowed or choice not in allowed[slug]:
+            raise BallotRejected(422, "invalid-answer", "One of the optional answers is not valid.")
+        cleaned.append((slug, choice))
+    return cleaned
+
+
 def has_voted(conn: sqlite3.Connection, poll_id: int, voter_hash: str) -> bool:
     row = conn.execute(
         "SELECT 1 FROM ballots WHERE poll_id = ? AND voter_hash = ?", (poll_id, voter_hash)
@@ -46,6 +65,7 @@ def record_ballot(
     voter_hash: str,
     network_hash: str,
     now: datetime,
+    answers: list[tuple[str, str]] = (),
     retries: int = 3,
     sleep: Callable[[float], None] = time.sleep,
 ) -> tuple[str, int]:
@@ -62,6 +82,10 @@ def record_ballot(
                 conn.executemany(
                     "INSERT INTO ballot_choices (ballot_id, option_id) VALUES (?, ?)",
                     [(ballot_id, option_id) for option_id in option_ids],
+                )
+                conn.executemany(
+                    "INSERT INTO ballot_answers (ballot_id, question, choice) VALUES (?, ?, ?)",
+                    [(ballot_id, slug, choice) for slug, choice in answers],
                 )
                 total = conn.execute(
                     "SELECT COUNT(*) FROM ballots WHERE poll_id = ?", (poll_id,)

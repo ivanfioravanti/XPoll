@@ -7,7 +7,13 @@ from pydantic import BaseModel, ConfigDict, Field, StrictInt
 
 from xpoll import db
 from xpoll.context import AppContext, get_conn, get_ctx
-from xpoll.services.ballots import BallotRejected, has_voted, record_ballot, validate_choices
+from xpoll.services.ballots import (
+    BallotRejected,
+    has_voted,
+    record_ballot,
+    validate_answers,
+    validate_choices,
+)
 from xpoll.services.suggestions import SuggestionRejected, store_suggestion, validate_suggestion
 
 router = APIRouter(prefix="/api")
@@ -25,6 +31,7 @@ STATE_MESSAGES = {
 class BallotIn(BaseModel):
     model_config = ConfigDict(extra="forbid")
     option_ids: list[StrictInt] = Field(max_length=64)
+    answers: dict[str, Annotated[str, Field(max_length=200)]] = Field(default={}, max_length=10)
     turnstile_token: str = Field(max_length=4096)
 
 
@@ -62,6 +69,7 @@ def cast_ballot(payload: BallotIn, request: Request, ctx: Ctx, conn: Conn):
             max_choices=poll["max_choices"],
             valid_ids=[o["id"] for o in db.active_options(conn, ctx.poll_id)],
         )
+        answers = validate_answers(payload.answers, ctx.config.questions)
     except BallotRejected as exc:
         return error(exc.status, exc.code, exc.message)
 
@@ -93,6 +101,7 @@ def cast_ballot(payload: BallotIn, request: Request, ctx: Ctx, conn: Conn):
             voter_hash=voter_hash,
             network_hash=network_hash,
             now=ctx.now(),
+            answers=answers,
         )
     except BallotRejected as exc:
         if exc.status == 409:

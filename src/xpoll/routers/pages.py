@@ -53,6 +53,7 @@ def index(request: Request, ctx: Ctx, conn: Conn):
     context = _base_context(request, ctx, conn)
     context.update(
         options=db.active_options(conn, ctx.poll_id),
+        questions=ctx.config.questions,
         site_key=ctx.settings.turnstile_site_key,
         suggestions_enabled=ctx.config.suggestions.enabled
         and context["state"] in {"open", "scheduled"},
@@ -69,6 +70,7 @@ def results_page(request: Request, ctx: Ctx, conn: Conn):
 def privacy(request: Request, ctx: Ctx, conn: Conn):
     context = _base_context(request, ctx, conn)
     context["suggestions"] = ctx.config.suggestions
+    context["questions"] = ctx.config.questions
     return _render(request, ctx, "privacy.html", context)
 
 

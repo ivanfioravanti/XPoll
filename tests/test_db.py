@@ -11,18 +11,25 @@ from xpoll.services.polls import voting_state
 
 def test_schema_and_pragmas(conn):
     tables = {r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
-    assert {"polls", "options", "ballots", "ballot_choices", "suggestions"} <= tables
+    assert {
+        "polls",
+        "options",
+        "ballots",
+        "ballot_choices",
+        "suggestions",
+        "ballot_answers",
+    } <= tables
     indexes = {r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='index'")}
     assert {"ballots_poll_created_idx", "choices_option_idx"} <= indexes
     assert conn.execute("PRAGMA foreign_keys").fetchone()[0] == 1
     assert conn.execute("PRAGMA journal_mode").fetchone()[0] == "wal"
     assert conn.execute("PRAGMA busy_timeout").fetchone()[0] == 5000
-    assert db.schema_version(conn) == 1
+    assert db.schema_version(conn) == 2
 
 
 def test_migrate_is_idempotent(conn):
-    assert db.migrate(conn) == 1
-    assert db.schema_version(conn) == 1
+    assert db.migrate(conn) == 2
+    assert db.schema_version(conn) == 2
 
 
 def test_refuses_newer_schema(conn):

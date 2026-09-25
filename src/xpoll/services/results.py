@@ -3,9 +3,12 @@ import json
 import sqlite3
 import threading
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from xpoll.poll_config import Question
 
 
 @dataclass(frozen=True)
@@ -47,6 +50,70 @@ def compute_results(conn: sqlite3.Connection, poll_id: int, poll_slug: str) -> d
             for row in rows
         ],
     }
+
+
+MIN_GROUP = 5  # smaller groups could expose an individual's ballot, so no cross-tab for them
+TOP_N = 3
+
+
+def compute_breakdown(
+    conn: sqlite3.Connection,
+    poll_id: int,
+    questions: Iterable["Question"],
+    top_n: int | None = TOP_N,
+) -> list[dict[str, Any]]:
+    """Per optional question: how many picked each answer, and top options per large group."""
+    breakdown = []
+    for question in questions:
+        rows = conn.execute(
+            """
+            SELECT a.choice, COUNT(*) AS n
+            FROM ballot_answers a JOIN ballots b ON b.id = a.ballot_id
+            WHERE b.poll_id = ? AND a.question = ?
+            GROUP BY a.choice
+            """,
+            (poll_id, question.slug),
+        ).fetchall()
+        answered = sum(row["n"] for row in rows)
+        order = {choice: i for i, choice in enumerate(question.choices)}
+        choices = []
+        for row in sorted(rows, key=lambda r: (-r["n"], order.get(r["choice"], len(order)))):
+            top = None
+            if row["n"] >= MIN_GROUP:
+                top = [
+                    {"name": t["name"], "percentage": round(t["r"] * 100 / row["n"], 1)}
+                    for t in conn.execute(
+                        """
+                        SELECT o.name, COUNT(*) AS r
+                        FROM ballot_answers a
+                        JOIN ballots b ON b.id = a.ballot_id
+                        JOIN ballot_choices bc ON bc.ballot_id = a.ballot_id
+                        JOIN options o ON o.id = bc.option_id
+                        WHERE b.poll_id = ? AND a.question = ? AND a.choice = ?
+                        GROUP BY o.id
+                        ORDER BY r DESC, lower(o.name) ASC
+                        LIMIT ?
+                        """,
+                        (poll_id, question.slug, row["choice"], -1 if top_n is None else top_n),
+                    )
+                ]
+            choices.append(
+                {
+                    "label": row["choice"],
+                    "count": row["n"],
+                    "percentage": round(row["n"] * 100 / answered, 1),
+                    "top": top,
+                }
+            )
+        breakdown.append(
+            {
+                "slug": question.slug,
+                "label": question.label,
+                "answered": answered,
+                "choices": choices,
+            }
+        )
+    return breakdown
 
 
 class ResultsCache:

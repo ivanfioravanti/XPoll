@@ -124,6 +124,8 @@ def cmd_export(args, settings: Settings) -> int:
     try:
         if args.what == "results":
             text = export.results_csv(conn, poll_id, config.poll.slug)
+        elif args.what == "breakdown":
+            text = export.breakdown_csv(conn, poll_id, config.questions)
         else:
             text = export.suggestions_csv(conn, poll_id)
     finally:
@@ -248,7 +250,7 @@ def build_parser() -> argparse.ArgumentParser:
     status.add_argument("--force", action="store_true", help="open despite REVIEW markers")
 
     exp = sub.add_parser("export", help="export aggregate results or suggestions as CSV")
-    exp.add_argument("what", choices=["results", "suggestions"])
+    exp.add_argument("what", choices=["results", "breakdown", "suggestions"])
     exp.add_argument("-o", "--output")
 
     bak = sub.add_parser("backup", help="verified online backup of the database")

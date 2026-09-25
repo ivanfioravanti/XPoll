@@ -155,9 +155,42 @@
       fragment.appendChild(li);
     });
     list.replaceChildren(fragment);
+    (data.questions || []).forEach((q) => renderBreakdown(section, q, data.total_ballots));
     $("#total-ballots", section).textContent = String(data.total_ballots);
     $("#ballots-label", section).textContent = data.total_ballots === 1 ? "ballot" : "ballots";
     $("#refreshed-at", section).textContent = new Date().toLocaleTimeString();
+  }
+
+  function renderBreakdown(section, q, total) {
+    const box = section.querySelector(`.breakdown[data-question="${CSS.escape(q.slug)}"]`);
+    if (!box) return;
+    $(".breakdown-meta", box).textContent = `${q.answered} of ${total} answered`;
+    let list = $(".breakdown-list", box);
+    const empty = $(".breakdown-empty", box);
+    if (!q.choices.length) return;
+    if (!list) {
+      list = el("ul", "breakdown-list");
+      if (empty) empty.replaceWith(list);
+      else box.appendChild(list);
+    }
+    const rows = q.choices.map((c) => {
+      const li = el("li", "breakdown-row");
+      const bar = el("progress", "result-bar");
+      bar.max = 100;
+      bar.value = c.percentage;
+      bar.setAttribute("aria-hidden", "true");
+      const top = c.top
+        ? "Top: " + c.top.map((t) => `${t.name} ${Math.round(t.percentage)}%`).join(" · ")
+        : "Top picks appear at 5+ answers";
+      li.append(
+        el("span", "breakdown-label", c.label),
+        el("span", "breakdown-count", `${c.count} · ${Number(c.percentage).toFixed(1)}%`),
+        bar,
+        el("span", "breakdown-top", top),
+      );
+      return li;
+    });
+    list.replaceChildren(...rows);
   }
 
   async function refreshResults(section) {
@@ -250,8 +283,13 @@
       const optionIds = boxes.filter((b) => b.checked).map((b) => Number(b.value));
       let result;
       try {
+        const answers = {};
+        $$('select[name="answer"]', form).forEach((select) => {
+          if (select.value) answers[select.dataset.question] = select.value;
+        });
         result = await postJSON(`${BASE}/api/ballots`, {
           option_ids: optionIds,
+          answers,
           turnstile_token: turnstileToken(widget),
         });
       } catch (_) {

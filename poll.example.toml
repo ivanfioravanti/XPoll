@@ -49,3 +49,10 @@ slug = "helix"
 name = "Helix"
 url = "https://github.com/helix-editor/helix"
 description = "A post-modern modal text editor."
+
+# Optional single-choice questions under the ballot; always skippable. Results show totals,
+# plus top options per answer once at least 5 ballots share it.
+# [[questions]]
+# slug = "os"
+# label = "Operating system"
+# choices = ["macOS", "Linux", "Windows"]

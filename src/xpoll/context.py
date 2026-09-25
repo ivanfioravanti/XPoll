@@ -11,7 +11,7 @@ from xpoll.identity import Identity
 from xpoll.poll_config import PollConfig
 from xpoll.ratelimit import RateLimiter
 from xpoll.services.polls import VotingState, voting_state
-from xpoll.services.results import ResultsCache, Snapshot, compute_results
+from xpoll.services.results import ResultsCache, Snapshot, compute_breakdown, compute_results
 from xpoll.social import SocialImage
 from xpoll.turnstile import TurnstileVerifier
 
@@ -37,7 +37,12 @@ class AppContext:
         return self.config.poll.results_visibility == "live" or state == "closed"
 
     def snapshot(self, conn: sqlite3.Connection) -> Snapshot:
-        return self.results.get(lambda: compute_results(conn, self.poll_id, self.config.poll.slug))
+        def load() -> dict:
+            payload = compute_results(conn, self.poll_id, self.config.poll.slug)
+            payload["questions"] = compute_breakdown(conn, self.poll_id, self.config.questions)
+            return payload
+
+        return self.results.get(load)
 
 
 def get_ctx(request: Request) -> AppContext:

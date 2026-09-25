@@ -11,6 +11,7 @@
     <li><strong>A browser cookie.</strong> On your first visit, this site stores a random, signed identifier in a first-party cookie (<code>xpoll_voter</code>). The database only stores a keyed hash of it, which is used to stop the same browser from voting twice. There are no advertising or analytics cookies.</li>
     <li><strong>A network identifier.</strong> Your IP address is never stored. The site stores a keyed hash (HMAC) of your network address, reduced to the /64 prefix for IPv6. It is used only to rate-limit abuse and review suspicious bursts.</li>
     <li><strong>Your ballot.</strong> The {{ poll.option_noun }}s you selected and when you voted.</li>
+    {% if questions %}<li><strong>Optional answers.</strong> If you answer the optional questions ({% for q in questions %}{{ q.label | lower }}{% if not loop.last %}, {% endif %}{% endfor %}), they are stored with your ballot. They are published only as totals, and a breakdown of picks for an answer is shown only once at least 5 ballots share it.</li>{% endif %}
     {% if suggestions.enabled %}<li><strong>Suggestions.</strong> The name, URL and notes you submit through the suggestion form. Suggestions are never published.</li>{% endif %}
     <li><strong>Bot check.</strong> Cloudflare Turnstile checks that submissions come from a person. Cloudflare processes data according to its own privacy policy.</li>
   </ul>

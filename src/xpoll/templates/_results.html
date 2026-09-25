@@ -23,5 +23,24 @@
     {% endfor %}
   </ol>
   {% if not snapshot.results %}<p class="empty">No {{ poll.option_noun }}s yet.</p>{% endif %}
-  <p class="methodology">Percentages show the share of ballots selecting each {{ poll.option_noun }}. Each ballot can select up to {{ db_poll.max_choices }}, so percentages may total more than 100%.</p>
+  {% for q in snapshot.questions %}
+  <div class="breakdown" data-question="{{ q.slug }}">
+    <h3 class="breakdown-title">By {{ q.label | lower }} <span class="breakdown-meta">{{ q.answered }} of {{ snapshot.total_ballots }} answered</span></h3>
+    {% if q.choices %}
+    <ul class="breakdown-list">
+      {% for c in q.choices %}
+      <li class="breakdown-row">
+        <span class="breakdown-label">{{ c.label }}</span>
+        <span class="breakdown-count">{{ c.count }} · {{ "%.1f" | format(c.percentage) }}%</span>
+        <progress class="result-bar" max="100" value="{{ c.percentage }}" aria-hidden="true">{{ c.percentage }}%</progress>
+        <span class="breakdown-top">{% if c.top %}Top: {% for t in c.top %}{{ t.name }} {{ "%.0f" | format(t.percentage) }}%{% if not loop.last %} · {% endif %}{% endfor %}{% else %}Top picks appear at 5+ answers{% endif %}</span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="breakdown-empty">No answers yet.</p>
+    {% endif %}
+  </div>
+  {% endfor %}
+  <p class="methodology">Percentages show the share of ballots selecting each {{ poll.option_noun }}. Each ballot can select up to {{ db_poll.max_choices }}, so percentages may total more than 100%.{% if snapshot.questions %} Setup percentages are shares of ballots that answered; "Top" shows the share of that group selecting each {{ poll.option_noun }}.{% endif %}</p>
 </section>

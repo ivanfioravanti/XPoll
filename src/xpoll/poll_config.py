@@ -74,11 +74,27 @@ class SuggestionsSection(_Strict):
     allowed_hosts: tuple[str, ...] = ("github.com",)
 
 
+class Question(_Strict):
+    """An optional single-choice question asked alongside the ballot (e.g. hardware)."""
+
+    slug: Slug
+    label: ShortText
+    choices: tuple[ShortText, ...] = Field(min_length=2, max_length=40)
+
+    @field_validator("choices")
+    @classmethod
+    def _unique(cls, choices: tuple[str, ...]) -> tuple[str, ...]:
+        if len({c.lower() for c in choices}) != len(choices):
+            raise ValueError("question choices must be unique")
+        return choices
+
+
 class PollConfig(_Strict):
     poll: PollSection
     operator: OperatorSection
     suggestions: SuggestionsSection = SuggestionsSection()
     options: tuple[PollOption, ...] = Field(min_length=1)
+    questions: tuple[Question, ...] = Field(default=(), max_length=5)
 
     @property
     def active_options(self) -> tuple[PollOption, ...]:
@@ -93,6 +109,9 @@ class PollConfig(_Strict):
             raise ValueError("max_choices exceeds the number of active options")
         if poll.opens_at and poll.closes_at and poll.opens_at >= poll.closes_at:
             raise ValueError("opens_at must be before closes_at")
+        slugs = [q.slug for q in self.questions]
+        if len(set(slugs)) != len(slugs):
+            raise ValueError("duplicate question slug")
         for field in ("slug", "name", "url"):
             values = [getattr(o, field).lower() for o in self.options]
             dupes = sorted({v for v in values if values.count(v) > 1})

@@ -29,6 +29,25 @@
       {% endfor %}
     </ul>
   </fieldset>
+  {% if questions %}
+  <fieldset class="questions">
+    <legend class="ballot-legend">
+      <span class="legend-title">About your setup</span>
+      <span class="legend-hint">Optional</span>
+    </legend>
+    <div class="question-grid">
+      {% for question in questions %}
+      <div class="question">
+        <label for="question-{{ question.slug }}">{{ question.label }}</label>
+        <select id="question-{{ question.slug }}" name="answer" data-question="{{ question.slug }}">
+          <option value="">Prefer not to say</option>
+          {% for choice in question.choices %}<option>{{ choice }}</option>{% endfor %}
+        </select>
+      </div>
+      {% endfor %}
+    </div>
+  </fieldset>
+  {% endif %}
   <div class="turnstile" data-turnstile data-sitekey="{{ site_key }}" data-action="vote"></div>
   <p class="form-error" id="ballot-error" role="alert" aria-live="assertive"></p>
   <div class="ballot-bar">
