@@ -97,6 +97,11 @@ name = "Splash"
 url = "https://github.com/incoai/splash"
 
 [[options]]
+slug = "sushi"
+name = "sushi"
+url = "https://github.com/beamivalice/sushi"
+
+[[options]]
 slug = "unsloth"
 name = "Unsloth"
 url = "https://github.com/unslothai/unsloth"
