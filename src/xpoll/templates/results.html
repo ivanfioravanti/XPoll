@@ -10,5 +10,5 @@
 {% else %}
 <p class="notice">Results will be published when the poll closes.</p>
 {% endif %}
-{% if state == "open" %}<p><a class="button primary" href="/">Cast your vote</a></p>{% endif %}
+{% if state == "open" and not already_voted %}<p><a class="button primary" href="/">Cast your vote</a></p>{% endif %}
 {% endblock %}

@@ -106,4 +106,4 @@ def test_disabled_suggestions(make_app):
     open_poll(app)
     client = TestClient(app, base_url=BASE_URL, headers={"Origin": BASE_URL})
     assert suggest(client).status_code == 404
-    assert "Missing a tool?" not in client.get("/").text
+    assert "Suggest a missing tool" not in client.get("/").text

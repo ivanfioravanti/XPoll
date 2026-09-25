@@ -11,7 +11,7 @@
     <li class="result">
       <div class="result-row">
         <a class="result-name" href="{{ row.url }}" target="_blank" rel="noopener noreferrer">{{ row.name }}</a>
-        <span class="result-count">{{ row.respondents }} · {{ row.percentage }}%</span>
+        <span class="result-count">{{ row.respondents }} · {{ "%.1f"|format(row.percentage) }}%</span>
       </div>
       <progress class="result-bar" max="100" value="{{ row.percentage }}" aria-hidden="true">{{ row.percentage }}%</progress>
     </li>

@@ -101,7 +101,7 @@
       name.rel = "noopener noreferrer";
       const count = document.createElement("span");
       count.className = "result-count";
-      count.textContent = `${row.respondents} · ${row.percentage}%`;
+      count.textContent = `${row.respondents} · ${Number(row.percentage).toFixed(1)}%`;
       head.append(name, count);
       const bar = document.createElement("progress");
       bar.className = "result-bar";

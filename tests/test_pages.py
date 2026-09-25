@@ -35,7 +35,7 @@ def test_ballot_page_contract(app, client):
     assert "checked" not in html
     assert "<script>" not in html
     assert " style=" not in html
-    assert "Missing a tool?" in html
+    assert "Suggest a missing tool" in html
     assert 'rel="noopener noreferrer"' in html
 
 
@@ -50,7 +50,7 @@ def test_draft_poll_page(client):
     html = client.get("/").text
     assert "not open yet" in html
     assert 'id="ballot"' not in html
-    assert "Missing a tool?" not in html
+    assert "Suggest a missing tool" not in html
 
 
 def test_scheduled_poll_page(make_app, clock):
@@ -60,7 +60,7 @@ def test_scheduled_poll_page(make_app, clock):
     html = TestClient(app, base_url=BASE_URL).get("/").text
     assert "Voting opens" in html
     assert 'class="localtime"' in html
-    assert "Missing a tool?" in html
+    assert "Suggest a missing tool" in html
 
 
 def test_closed_poll_page_shows_final_results(app, client):
@@ -97,7 +97,8 @@ def test_results_page_contract(app, voter):
     assert "1 · 100.0%" in html
     assert "may total more than 100%" in html
     assert 'data-live="true"' in html
-    assert "Cast your vote" in html
+    assert "Cast your vote" not in html
+    assert "Cast your vote" in TestClient(app, base_url=BASE_URL).get("/results").text
 
 
 def test_privacy_page_discloses_required_items(client):
@@ -123,6 +124,8 @@ def test_theme_css_uses_configured_accent(make_app):
 
 
 def test_static_assets_served(client):
+    assert 'rel="icon" href="/static/favicon.svg"' in client.get("/").text
+    assert client.get("/static/favicon.svg").status_code == 200
     assert client.get("/static/app.js").status_code == 200
     assert client.get("/static/styles.css").status_code == 200
 
