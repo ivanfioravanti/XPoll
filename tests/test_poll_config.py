@@ -46,6 +46,7 @@ def test_defaults():
         (lambda d: d["options"][0].update(url="https://u:p@github.com/x"), "https"),
         (lambda d: d["options"][0].update(slug="Bad Slug"), "pattern"),
         (lambda d: d["poll"].update(accent_color="red"), "pattern"),
+        (lambda d: d["poll"].update(theme="sepia"), "auto"),
         (lambda d: d["poll"].update(unknown=1), "Extra inputs"),
         (lambda d: d["poll"].update(opens_at="2026-10-01T08:00:00"), "UTC offset"),
         (

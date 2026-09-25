@@ -37,6 +37,7 @@
       w.id = window.turnstile.render(container, {
         sitekey: container.dataset.sitekey,
         action: container.dataset.action,
+        theme: container.dataset.theme || "auto",
         callback: setToken,
         "expired-callback": () => setToken(null),
         "error-callback": () => setToken(null),

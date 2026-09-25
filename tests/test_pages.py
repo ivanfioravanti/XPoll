@@ -161,3 +161,18 @@ def test_tied_options_share_a_rank(app, client):
 def test_nav_marks_current_page(client):
     assert '<a href="/results" aria-current="page">' in client.get("/results").text
     assert '<a href="/" aria-current="page">' in client.get("/").text
+
+
+def test_theme_defaults_to_auto(client):
+    html = client.get("/").text
+    assert '<html lang="en" data-theme="auto">' in html
+    assert '<meta name="color-scheme" content="light dark">' in html
+
+
+def test_forced_dark_theme(make_app):
+    app = make_app(PollConfig.model_validate(poll_data(theme="dark")))
+    open_poll(app)
+    html = TestClient(app, base_url=BASE_URL).get("/").text
+    assert '<html lang="en" data-theme="dark">' in html
+    assert '<meta name="color-scheme" content="dark">' in html
+    assert 'data-action="vote" data-theme="dark"' in html

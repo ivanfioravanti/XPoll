@@ -51,6 +51,7 @@ class PollSection(_Strict):
     results_visibility: Literal["live", "after_close"] = "live"
     option_noun: ShortText = "option"
     accent_color: str = Field(default="#2563eb", pattern=r"^#[0-9a-fA-F]{6}$")
+    theme: Literal["auto", "light", "dark"] = "auto"
 
     @field_validator("opens_at", "closes_at")
     @classmethod

@@ -33,7 +33,7 @@ See [`poll.example.toml`](poll.example.toml) for a complete, commented example.
 
 | Section | Keys |
 |---|---|
-| `[poll]` | `slug` (a stable ID; changing it starts a new poll), `title`, `question`, `description` (the inclusion rule), `min_choices`, `max_choices`, `opens_at`/`closes_at` (optional, must include a UTC offset), `results_visibility` (`live` or `after_close`), `option_noun`, `accent_color` |
+| `[poll]` | `slug` (a stable ID; changing it starts a new poll), `title`, `question`, `description` (the inclusion rule), `min_choices`, `max_choices`, `opens_at`/`closes_at` (optional, must include a UTC offset), `results_visibility` (`live` or `after_close`), `option_noun`, `accent_color`, `theme` (`auto`, `light` or `dark`) |
 | `[operator]` | `name`, `contact`, `retention`, `disclaimer`. These appear on the privacy page. |
 | `[suggestions]` | `enabled`, `allowed_hosts` (default `["github.com"]`) |
 | `[[options]]` | `slug`, `name`, `url` (https), `description`, `active` |

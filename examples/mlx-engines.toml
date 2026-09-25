@@ -15,6 +15,7 @@ max_choices = 5
 results_visibility = "live"
 option_noun = "engine"
 accent_color = "#2563eb"
+theme = "dark"
 
 [operator]
 name = "Ivan Fioravanti"

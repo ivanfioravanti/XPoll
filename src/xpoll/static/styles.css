@@ -35,8 +35,31 @@
   color-scheme: light dark;
 }
 
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --bg: #0d0f13;
+  --surface: #161a20;
+  --surface-2: #1d2129;
+  --ink: #eceef2;
+  --muted: #98a0ac;
+  --line: #2a2f39;
+  --danger: #ff6b6b;
+  --success: #4ade80;
+
+  --readout: #07080b;
+  --readout-line: #1e232d;
+  --readout-track: #171b22;
+
+  --accent-soft: color-mix(in srgb, var(--accent) 18%, var(--surface));
+  --accent-line: color-mix(in srgb, var(--accent) 55%, var(--line));
+  color-scheme: dark;
+}
+
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #0d0f13;
     --surface: #161a20;
     --surface-2: #1d2129;
