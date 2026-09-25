@@ -1,4 +1,4 @@
-/* XPoll: anodized greys, one configurable accent, system SF/mono type, dark results readout. */
+/* XPoll: anodized greys, one configurable accent, system SF/mono type, results readout. */
 
 :root {
   --accent: #2563eb; /* overridden by /theme.css from poll.toml */
@@ -13,11 +13,13 @@
   --danger: #c0262d;
   --success: #1a7f4b;
 
-  --readout: #0c0e12;
-  --readout-ink: #e8ebf0;
-  --readout-muted: #8b93a1;
-  --readout-line: #212631;
-  --readout-track: #1a1e26;
+  --readout: #ffffff;
+  --readout-ink: #101318;
+  --readout-muted: #5a616c;
+  --readout-line: #e3e7ec;
+  --readout-track: #e8ebf0;
+  --readout-shadow: 0 20px 40px -30px rgb(16 19 24 / 30%);
+  --leader: var(--accent);
 
   --accent-soft: color-mix(in srgb, var(--accent) 10%, var(--surface));
   --accent-line: color-mix(in srgb, var(--accent) 45%, var(--line));
@@ -50,8 +52,12 @@
   --success: #4ade80;
 
   --readout: #07080b;
+  --readout-ink: #e8ebf0;
+  --readout-muted: #8b93a1;
   --readout-line: #1e232d;
   --readout-track: #171b22;
+  --readout-shadow: 0 24px 48px -28px rgb(0 0 0 / 60%);
+  --leader: color-mix(in srgb, var(--accent) 55%, #fff);
 
   --accent-soft: color-mix(in srgb, var(--accent) 18%, var(--surface));
   --accent-line: color-mix(in srgb, var(--accent) 55%, var(--line));
@@ -70,8 +76,12 @@
     --success: #4ade80;
 
     --readout: #07080b;
+    --readout-ink: #e8ebf0;
+    --readout-muted: #8b93a1;
     --readout-line: #1e232d;
     --readout-track: #171b22;
+    --readout-shadow: 0 24px 48px -28px rgb(0 0 0 / 60%);
+    --leader: color-mix(in srgb, var(--accent) 55%, #fff);
 
     --accent-soft: color-mix(in srgb, var(--accent) 18%, var(--surface));
     --accent-line: color-mix(in srgb, var(--accent) 55%, var(--line));
@@ -620,7 +630,7 @@ button:disabled {
   border-radius: var(--radius-lg);
   background: var(--readout);
   color: var(--readout-ink);
-  box-shadow: 0 24px 48px -28px rgb(8 12 20 / 55%);
+  box-shadow: var(--readout-shadow);
 }
 
 .readout-head {
@@ -740,7 +750,7 @@ button:disabled {
 }
 
 .result.is-leader .result-pct {
-  color: color-mix(in srgb, var(--accent) 55%, #fff);
+  color: var(--leader);
 }
 
 .result.is-zero {
